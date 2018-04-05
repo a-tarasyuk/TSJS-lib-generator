@@ -59,6 +59,8 @@
     "Performance",
     "PerformanceNavigation",
     "PerformanceTiming",
+    "PerformanceEntry",
+    "PerformanceEntryList",
     "Position",
     "PositionError",
     "ProgressEvent",

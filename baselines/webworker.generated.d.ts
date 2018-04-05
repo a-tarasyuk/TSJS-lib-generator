@@ -1029,9 +1029,9 @@ interface Performance {
     clearMarks(markName?: string): void;
     clearMeasures(measureName?: string): void;
     clearResourceTimings(): void;
-    getEntries(): any;
-    getEntriesByName(name: string, type?: string): any;
-    getEntriesByType(type: string): any;
+    getEntries(): PerformanceEntryList;
+    getEntriesByType(name: string, type?: string): PerformanceEntryList;
+    getEntriesByType(type: string): PerformanceEntryList;
     /** @deprecated */
     getMarks(markName?: string): any;
     /** @deprecated */
@@ -1046,6 +1046,19 @@ interface Performance {
 declare var Performance: {
     prototype: Performance;
     new(): Performance;
+};
+
+interface PerformanceEntry {
+    readonly duration: number;
+    readonly entryType: string;
+    readonly name: string;
+    readonly startTime: number;
+    toJSON(): any;
+}
+
+declare var PerformanceEntry: {
+    prototype: PerformanceEntry;
+    new(): PerformanceEntry;
 };
 
 interface PerformanceNavigation {
@@ -1748,6 +1761,7 @@ type RequestInfo = Request | string;
 type USVString = string;
 type payloadtype = number;
 type ClientTypes = "window" | "worker" | "sharedworker" | "all";
+type PerformanceEntryList = PerformanceEntry[];
 type BinaryType = "blob" | "arraybuffer";
 type IDBCursorDirection = "next" | "nextunique" | "prev" | "prevunique";
 type IDBRequestReadyState = "pending" | "done";

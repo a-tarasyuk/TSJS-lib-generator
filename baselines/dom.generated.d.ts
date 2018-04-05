@@ -9823,9 +9823,9 @@ interface Performance {
     clearMarks(markName?: string): void;
     clearMeasures(measureName?: string): void;
     clearResourceTimings(): void;
-    getEntries(): any;
-    getEntriesByName(name: string, type?: string): any;
-    getEntriesByType(type: string): any;
+    getEntries(): PerformanceEntryList;
+    getEntriesByType(name: string, type?: string): PerformanceEntryList;
+    getEntriesByType(type: string): PerformanceEntryList;
     /** @deprecated */
     getMarks(markName?: string): any;
     /** @deprecated */
@@ -15979,6 +15979,7 @@ type USVString = string;
 type payloadtype = number;
 type BufferSource = ArrayBuffer | ArrayBufferView;
 type ClientTypes = "window" | "worker" | "sharedworker" | "all";
+type PerformanceEntryList = PerformanceEntry[];
 type AppendMode = "segments" | "sequence";
 type AudioContextLatencyCategory = "balanced" | "interactive" | "playback";
 type AudioContextState = "suspended" | "running" | "closed";

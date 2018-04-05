@@ -1967,6 +1967,30 @@
                         "new(d?: Path2D | string): Path2D"
                     ]
                 }
+            },
+            "Performance": {
+                "methods": {
+                    "method": {
+                        "getEntries": {
+                            "override-signatures": [
+                                "getEntries(): PerformanceEntryList"
+                            ],
+                            "name": "getEntries"
+                        },
+                        "getEntriesByType": {
+                            "override-signatures": [
+                                "getEntriesByType(type: string): PerformanceEntryList"
+                            ],
+                            "name": "getEntriesByType"
+                        },
+                        "getEntriesByName": {
+                            "override-signatures": [
+                                "getEntriesByType(name: string, type?: string): PerformanceEntryList"
+                            ],
+                            "name": "getEntriesByName"
+                        }
+                    }
+                }
             }
         }
     },
