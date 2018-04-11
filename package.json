@@ -8,13 +8,16 @@
     "test": "tsc --p ./tsconfig.json && node ./lib/index.js && node ./lib/test.js"
   },
   "dependencies": {
+    "@types/progress": "^2.0.1",
     "@types/jsdom": "^11.0.4",
     "@types/node": "^9.4.6",
     "@types/node-fetch": "^1.6.7",
     "@types/webidl2": "^10.2.1",
+    "colors": "^1.2.1",
     "cpx": "^1.5.0",
     "jsdom": "^11.6.2",
     "node-fetch": "^2.1.1",
+    "progress": "2.0.0",
     "typescript": "next",
     "webidl2": "^10.3.1"
   }

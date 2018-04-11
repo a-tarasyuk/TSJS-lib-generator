@@ -1,7 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
+import ProgressBar from 'progress';
+import colors from 'colors';
 import fetch from "node-fetch";
 import { JSDOM } from "jsdom";
+
 
 fetchIDLs();
 
@@ -12,10 +15,21 @@ interface IDLSource {
 
 async function fetchIDLs() {
     const idlSources = require("../inputfiles/idlSources.json") as IDLSource[];
+    const progressBar = new ProgressBar('[:bar] :percent | :etas', { total: idlSources.length });
+
     for (const source of idlSources) {
-        const idl = await fetchIDL(source);
-        fs.writeFileSync(path.join(__dirname, `../inputfiles/idl/${source.title}.widl`), idl + '\n');
+        try {
+            const idl = await fetchIDL(source);
+
+            fs.writeFileSync(path.join(__dirname, `../inputfiles/idl/${source.title}.widl`), idl + '\n');
+            progressBar.tick();
+        } catch (error) {
+            const errorMessage = colors.red(`[${ source.title } (${ source.url })] Error: ${ error.message }`);
+            progressBar.interrupt(errorMessage);
+        }
     }
+
+    console.log('\n');
 }
 
 async function fetchIDL(source: IDLSource) {
@@ -32,7 +46,7 @@ async function fetchIDL(source: IDLSource) {
         // IDL Index includes all IDL codes
         return last.textContent!.trim();
     }
-    
+
     return elements.map(element => trimCommonIndentation(element.textContent!).trim()).join('\n\n');
 }
 
