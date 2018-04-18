@@ -4,8 +4,10 @@
             "Function": {}
         }
     },
-    "mixin-interfaces": {
-        "interface": {}
+    "mixins": {
+        "mixin": {
+            "XMLHttpRequestEventTarget": {}
+        }
     },
     "callback-interfaces": {
         "interface": {}
@@ -46,6 +48,13 @@
     },
     "dictionaries": {
         "dictionary": {
+            "RTCRtpContributingSource": {
+                "members": {
+                    "member": {
+                        "csrc": {}
+                    }
+                }
+            },
             "MediaTrackConstraintSet": {
                 "members": {
                     "member": {

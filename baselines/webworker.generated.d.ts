@@ -19,7 +19,6 @@ interface CacheQueryOptions {
 }
 
 interface ClientQueryOptions {
-    includeReserved?: boolean;
     includeUncontrolled?: boolean;
     type?: ClientTypes;
 }
@@ -55,14 +54,15 @@ interface ExtendableMessageEventInit extends ExtendableEventInit {
     data?: any;
     lastEventId?: string;
     origin?: string;
-    ports?: MessagePort[] | null;
-    source?: Client | ServiceWorker | MessagePort | null;
+    ports?: MessagePort[];
+    source?: Client | ServiceWorker | MessagePort;
 }
 
 interface FetchEventInit extends ExtendableEventInit {
     clientId?: string;
+    preloadResponse: Promise<any>;
     request: Request;
-    reservedClientId?: string;
+    resultingClientId?: string;
     targetClientId?: string;
 }
 
@@ -98,18 +98,37 @@ interface MessageEventInit extends EventInit {
     source?: object | null;
 }
 
+interface NavigationPreloadState {
+    enabled?: boolean;
+    headerValue?: string;
+}
+
+interface NotificationAction {
+    action: string;
+    icon?: string;
+    title: string;
+}
+
 interface NotificationEventInit extends ExtendableEventInit {
     action?: string;
     notification: Notification;
 }
 
 interface NotificationOptions {
+    actions?: NotificationAction[];
+    badge?: string;
     body?: string;
     data?: any;
     dir?: NotificationDirection;
     icon?: string;
+    image?: string;
     lang?: string;
+    renotify?: boolean;
+    requireInteraction?: boolean;
+    silent?: boolean;
     tag?: string;
+    timestamp?: number;
+    vibrate?: VibratePattern;
 }
 
 interface ObjectURLOptions {
@@ -128,7 +147,7 @@ interface ProgressEventInit extends EventInit {
 }
 
 interface PushEventInit extends ExtendableEventInit {
-    data?: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | string | null;
+    data?: PushMessageDataInit;
 }
 
 interface PushSubscriptionChangeInit extends ExtendableEventInit {
@@ -136,9 +155,21 @@ interface PushSubscriptionChangeInit extends ExtendableEventInit {
     oldSubscription?: PushSubscription;
 }
 
+interface PushSubscriptionJSON {
+    endpoint?: string;
+    expirationTime?: number | null;
+    keys?: Record<string, string>;
+}
+
 interface PushSubscriptionOptionsInit {
-    applicationServerKey?: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | string | null;
+    applicationServerKey?: BufferSource | string;
     userVisibleOnly?: boolean;
+}
+
+interface RegistrationOptions {
+    scope?: string;
+    type?: WorkerType;
+    updateViaCache?: ServiceWorkerUpdateViaCache;
 }
 
 interface RequestInit {
@@ -228,13 +259,13 @@ interface Body {
 }
 
 interface Cache {
-    add(request: Request | string): Promise<void>;
-    addAll(requests: (Request | string)[]): Promise<void>;
-    delete(request: Request | string, options?: CacheQueryOptions): Promise<boolean>;
-    keys(request?: Request | string, options?: CacheQueryOptions): Promise<Request[]>;
-    match(request: Request | string, options?: CacheQueryOptions): Promise<Response>;
-    matchAll(request?: Request | string, options?: CacheQueryOptions): Promise<Response[]>;
-    put(request: Request | string, response: Response): Promise<void>;
+    add(request: RequestInfo): Promise<void>;
+    addAll(requests: RequestInfo[]): Promise<void>;
+    delete(request: RequestInfo, options?: CacheQueryOptions): Promise<boolean>;
+    keys(request?: RequestInfo, options?: CacheQueryOptions): Promise<ReadonlyArray<Request>>;
+    match(request: RequestInfo, options?: CacheQueryOptions): Promise<Response | undefined>;
+    matchAll(request?: RequestInfo, options?: CacheQueryOptions): Promise<ReadonlyArray<Response>>;
+    put(request: RequestInfo, response: Response): Promise<void>;
 }
 
 declare var Cache: {
@@ -246,7 +277,7 @@ interface CacheStorage {
     delete(cacheName: string): Promise<boolean>;
     has(cacheName: string): Promise<boolean>;
     keys(): Promise<string[]>;
-    match(request: Request | string, options?: CacheQueryOptions): Promise<any>;
+    match(request: RequestInfo, options?: CacheQueryOptions): Promise<Response | undefined>;
     open(cacheName: string): Promise<Cache>;
 }
 
@@ -257,7 +288,6 @@ declare var CacheStorage: {
 
 interface Client {
     readonly id: string;
-    readonly reserved: boolean;
     readonly type: ClientTypes;
     readonly url: string;
     postMessage(message: any, transfer?: any[]): void;
@@ -271,7 +301,7 @@ declare var Client: {
 interface Clients {
     claim(): Promise<void>;
     get(id: string): Promise<any>;
-    matchAll(options?: ClientQueryOptions): Promise<Client[]>;
+    matchAll(options?: ClientQueryOptions): Promise<ReadonlyArray<Client>>;
     openWindow(url: string): Promise<WindowClient | null>;
 }
 
@@ -326,21 +356,6 @@ interface Console {
 declare var Console: {
     prototype: Console;
     new(): Console;
-};
-
-interface Coordinates {
-    readonly accuracy: number;
-    readonly altitude: number | null;
-    readonly altitudeAccuracy: number | null;
-    readonly heading: number | null;
-    readonly latitude: number;
-    readonly longitude: number;
-    readonly speed: number | null;
-}
-
-declare var Coordinates: {
-    prototype: Coordinates;
-    new(): Coordinates;
 };
 
 interface CryptoKey {
@@ -533,7 +548,7 @@ interface ExtendableMessageEvent extends ExtendableEvent {
     readonly data: any;
     readonly lastEventId: string;
     readonly origin: string;
-    readonly ports: ReadonlyArray<MessagePort> | null;
+    readonly ports: ReadonlyArray<MessagePort>;
     readonly source: Client | ServiceWorker | MessagePort | null;
 }
 
@@ -544,8 +559,9 @@ declare var ExtendableMessageEvent: {
 
 interface FetchEvent extends ExtendableEvent {
     readonly clientId: string;
+    readonly preloadResponse: Promise<any>;
     readonly request: Request;
-    readonly reservedClientId: string;
+    readonly resultingClientId: string;
     readonly targetClientId: string;
     respondWith(r: Promise<Response>): void;
 }
@@ -647,12 +663,12 @@ interface FormData {
     getAll(name: string): FormDataEntryValue[];
     has(name: string): boolean;
     set(name: string, value: string | Blob, fileName?: string): void;
+    forEach(callbackfn: (value: FormDataEntryValue, key: string, parent: FormData) => void, thisArg?: any): void;
 }
 
 declare var FormData: {
     prototype: FormData;
-    new(): FormData;
-    new(form: object): FormData;
+    new(form?: object): FormData;
 };
 
 interface GlobalFetch {
@@ -673,17 +689,17 @@ declare var Headers: {
     new(init?: HeadersInit): Headers;
 };
 
-interface IDBArrayKey extends Array<number | string | Date | IDBArrayKey> {
+interface IDBArrayKey extends Array<IDBValidKey> {
 }
 
 interface IDBCursor {
     readonly direction: IDBCursorDirection;
-    readonly key: IDBKeyRange | number | string | Date | IDBArrayKey;
-    readonly primaryKey: any;
+    readonly key: IDBValidKey | IDBKeyRange;
+    readonly primaryKey: IDBValidKey | IDBKeyRange;
     readonly source: IDBObjectStore | IDBIndex;
     advance(count: number): void;
-    continue(key?: IDBKeyRange | number | string | Date | IDBArrayKey): void;
-    continuePrimaryKey(key: any, primaryKey: any): void;
+    continue(key?: IDBValidKey | IDBKeyRange): void;
+    continuePrimaryKey(key: IDBValidKey | IDBKeyRange, primaryKey: IDBValidKey | IDBKeyRange): void;
     delete(): IDBRequest;
     update(value: any): IDBRequest;
 }
@@ -749,13 +765,13 @@ interface IDBIndex {
     name: string;
     readonly objectStore: IDBObjectStore;
     readonly unique: boolean;
-    count(key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    get(key: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    getAll(query?: any, count?: number): IDBRequest;
-    getAllKeys(query?: any, count?: number): IDBRequest;
-    getKey(key: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    openCursor(range?: IDBKeyRange | number | string | Date | IDBArrayKey, direction?: IDBCursorDirection): IDBRequest;
-    openKeyCursor(range?: IDBKeyRange | number | string | Date | IDBArrayKey, direction?: IDBCursorDirection): IDBRequest;
+    count(key?: IDBValidKey | IDBKeyRange): IDBRequest;
+    get(key: IDBValidKey | IDBKeyRange): IDBRequest;
+    getAll(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getAllKeys(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getKey(key: IDBValidKey | IDBKeyRange): IDBRequest;
+    openCursor(range?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
+    openKeyCursor(range?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
 }
 
 declare var IDBIndex: {
@@ -786,20 +802,20 @@ interface IDBObjectStore {
     readonly keyPath: string | string[];
     name: string;
     readonly transaction: IDBTransaction;
-    add(value: any, key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
+    add(value: any, key?: IDBValidKey | IDBKeyRange): IDBRequest;
     clear(): IDBRequest;
-    count(key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    createIndex(name: string, keyPath: string | string[], optionalParameters?: IDBIndexParameters): IDBIndex;
-    delete(key: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
+    count(key?: IDBValidKey | IDBKeyRange): IDBRequest;
+    createIndex(name: string, keyPath: string | string[], options?: IDBIndexParameters): IDBIndex;
+    delete(key: IDBValidKey | IDBKeyRange): IDBRequest;
     deleteIndex(name: string): void;
-    get(query: any): IDBRequest;
-    getAll(query?: any, count?: number): IDBRequest;
-    getAllKeys(query?: any, count?: number): IDBRequest;
-    getKey(query: any): IDBRequest;
+    get(query: IDBValidKey | IDBKeyRange): IDBRequest;
+    getAll(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getAllKeys(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getKey(query: IDBValidKey | IDBKeyRange): IDBRequest;
     index(name: string): IDBIndex;
-    openCursor(range?: IDBKeyRange | number | string | Date | IDBArrayKey, direction?: IDBCursorDirection): IDBRequest;
-    openKeyCursor(query?: any, direction?: IDBCursorDirection): IDBRequest;
-    put(value: any, key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
+    openCursor(range?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
+    openKeyCursor(query?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
+    put(value: any, key?: IDBValidKey | IDBKeyRange): IDBRequest;
 }
 
 declare var IDBObjectStore: {
@@ -928,7 +944,7 @@ interface MessageEvent extends Event {
     readonly data: any;
     readonly origin: string;
     readonly ports: ReadonlyArray<MessagePort>;
-    readonly source: object | null;
+    readonly source: MessageEventSource;
     initMessageEvent(type: string, bubbles: boolean, cancelable: boolean, data: any, origin: string, lastEventId: string, source: object): void;
 }
 
@@ -955,6 +971,18 @@ interface MessagePort extends EventTarget {
 declare var MessagePort: {
     prototype: MessagePort;
     new(): MessagePort;
+};
+
+interface NavigationPreloadManager {
+    disable(): Promise<void>;
+    enable(): Promise<void>;
+    getState(): Promise<NavigationPreloadState>;
+    setHeaderValue(value: string): Promise<void>;
+}
+
+declare var NavigationPreloadManager: {
+    prototype: NavigationPreloadManager;
+    new(): NavigationPreloadManager;
 };
 
 interface NavigatorBeacon {
@@ -989,18 +1017,25 @@ interface NotificationEventMap {
 }
 
 interface Notification extends EventTarget {
-    readonly body: string | null;
+    readonly actions: ReadonlyArray<NotificationAction>;
+    readonly badge: string;
+    readonly body: string;
     readonly data: any;
     readonly dir: NotificationDirection;
-    readonly icon: string | null;
-    readonly lang: string | null;
+    readonly icon: string;
+    readonly image: string;
+    readonly lang: string;
     onclick: ((this: Notification, ev: Event) => any) | null;
     onclose: ((this: Notification, ev: Event) => any) | null;
     onerror: ((this: Notification, ev: Event) => any) | null;
     onshow: ((this: Notification, ev: Event) => any) | null;
-    readonly permission: NotificationPermission;
-    readonly tag: string | null;
+    readonly renotify: boolean;
+    readonly requireInteraction: boolean;
+    readonly silent: boolean;
+    readonly tag: string;
+    readonly timestamp: number;
     readonly title: string;
+    readonly vibrate: ReadonlyArray<number>;
     close(): void;
     addEventListener<K extends keyof NotificationEventMap>(type: K, listener: (this: Notification, ev: NotificationEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
@@ -1011,7 +1046,9 @@ interface Notification extends EventTarget {
 declare var Notification: {
     prototype: Notification;
     new(title: string, options?: NotificationOptions): Notification;
-    requestPermission(callback?: NotificationPermissionCallback): Promise<NotificationPermission>;
+    readonly maxActions: number;
+    readonly permission: NotificationPermission;
+    requestPermission(deprecatedCallback?: NotificationPermissionCallback): Promise<NotificationPermission>;
 };
 
 interface NotificationEvent extends ExtendableEvent {
@@ -1141,43 +1178,15 @@ declare var PerformanceTiming: {
     new(): PerformanceTiming;
 };
 
-interface Position {
-    readonly coords: Coordinates;
-    readonly timestamp: number;
-}
-
-declare var Position: {
-    prototype: Position;
-    new(): Position;
-};
-
-interface PositionError {
-    readonly code: number;
-    readonly message: string;
-    toString(): string;
-    readonly PERMISSION_DENIED: number;
-    readonly POSITION_UNAVAILABLE: number;
-    readonly TIMEOUT: number;
-}
-
-declare var PositionError: {
-    prototype: PositionError;
-    new(): PositionError;
-    readonly PERMISSION_DENIED: number;
-    readonly POSITION_UNAVAILABLE: number;
-    readonly TIMEOUT: number;
-};
-
 interface ProgressEvent extends Event {
     readonly lengthComputable: boolean;
     readonly loaded: number;
     readonly total: number;
-    initProgressEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, lengthComputableArg: boolean, loadedArg: number, totalArg: number): void;
 }
 
 declare var ProgressEvent: {
     prototype: ProgressEvent;
-    new(typeArg: string, eventInitDict?: ProgressEventInit): ProgressEvent;
+    new(type: string, eventInitDict?: ProgressEventInit): ProgressEvent;
 };
 
 interface PushEvent extends ExtendableEvent {
@@ -1190,7 +1199,6 @@ declare var PushEvent: {
 };
 
 interface PushManager {
-    readonly supportedContentEncodings: ReadonlyArray<string>;
     getSubscription(): Promise<PushSubscription | null>;
     permissionState(options?: PushSubscriptionOptionsInit): Promise<PushPermissionState>;
     subscribe(options?: PushSubscriptionOptionsInit): Promise<PushSubscription>;
@@ -1199,6 +1207,7 @@ interface PushManager {
 declare var PushManager: {
     prototype: PushManager;
     new(): PushManager;
+    readonly supportedContentEncodings: ReadonlyArray<string>;
 };
 
 interface PushMessageData {
@@ -1218,7 +1227,7 @@ interface PushSubscription {
     readonly expirationTime: number | null;
     readonly options: PushSubscriptionOptions;
     getKey(name: PushEncryptionKeyName): ArrayBuffer | null;
-    toJSON(): any;
+    toJSON(): PushSubscriptionJSON;
     unsubscribe(): Promise<boolean>;
 }
 
@@ -1330,6 +1339,33 @@ declare var ServiceWorker: {
     new(): ServiceWorker;
 };
 
+interface ServiceWorkerContainerEventMap {
+    "controllerchange": Event;
+    "message": MessageEvent;
+    "messageerror": MessageEvent;
+}
+
+interface ServiceWorkerContainer extends EventTarget {
+    readonly controller: ServiceWorker | null;
+    oncontrollerchange: ((this: ServiceWorkerContainer, ev: Event) => any) | null;
+    onmessage: ((this: ServiceWorkerContainer, ev: MessageEvent) => any) | null;
+    onmessageerror: ((this: ServiceWorkerContainer, ev: MessageEvent) => any) | null;
+    readonly ready: Promise<ServiceWorkerRegistration>;
+    getRegistration(clientURL?: string): Promise<ServiceWorkerRegistration | undefined>;
+    getRegistrations(): Promise<ReadonlyArray<ServiceWorkerRegistration>>;
+    register(scriptURL: string, options?: RegistrationOptions): Promise<ServiceWorkerRegistration>;
+    startMessages(): void;
+    addEventListener<K extends keyof ServiceWorkerContainerEventMap>(type: K, listener: (this: ServiceWorkerContainer, ev: ServiceWorkerContainerEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof ServiceWorkerContainerEventMap>(type: K, listener: (this: ServiceWorkerContainer, ev: ServiceWorkerContainerEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+
+declare var ServiceWorkerContainer: {
+    prototype: ServiceWorkerContainer;
+    new(): ServiceWorkerContainer;
+};
+
 interface ServiceWorkerGlobalScopeEventMap extends WorkerGlobalScopeEventMap {
     "activate": ExtendableEvent;
     "fetch": FetchEvent;
@@ -1375,10 +1411,12 @@ interface ServiceWorkerRegistrationEventMap {
 interface ServiceWorkerRegistration extends EventTarget {
     readonly active: ServiceWorker | null;
     readonly installing: ServiceWorker | null;
+    readonly navigationPreload: NavigationPreloadManager;
     onupdatefound: ((this: ServiceWorkerRegistration, ev: Event) => any) | null;
     readonly pushManager: PushManager;
     readonly scope: string;
     readonly sync: SyncManager;
+    readonly updateViaCache: ServiceWorkerUpdateViaCache;
     readonly waiting: ServiceWorker | null;
     getNotifications(filter?: GetNotificationOptions): Promise<Notification[]>;
     showNotification(title: string, options?: NotificationOptions): Promise<void>;
@@ -1519,7 +1557,7 @@ interface WindowClient extends Client {
     readonly focused: boolean;
     readonly visibilityState: VisibilityState;
     focus(): Promise<WindowClient>;
-    navigate(url: string): Promise<WindowClient>;
+    navigate(url: string): Promise<WindowClient | null>;
 }
 
 declare var WindowClient: {
@@ -1595,6 +1633,7 @@ declare var WorkerLocation: {
 };
 
 interface WorkerNavigator extends NavigatorID, NavigatorOnLine, NavigatorBeacon, NavigatorConcurrentHardware {
+    readonly serviceWorker: ServiceWorkerContainer;
 }
 
 declare var WorkerNavigator: {
@@ -1619,8 +1658,7 @@ interface XMLHttpRequestEventMap extends XMLHttpRequestEventTargetEventMap {
     "readystatechange": Event;
 }
 
-interface XMLHttpRequest extends EventTarget, XMLHttpRequestEventTarget {
-    msCaching: string;
+interface XMLHttpRequest extends XMLHttpRequestEventTarget {
     onreadystatechange: ((this: XMLHttpRequest, ev: Event) => any) | null;
     readonly readyState: number;
     readonly response: any;
@@ -1635,12 +1673,12 @@ interface XMLHttpRequest extends EventTarget, XMLHttpRequestEventTarget {
     withCredentials: boolean;
     abort(): void;
     getAllResponseHeaders(): string;
-    getResponseHeader(header: string): string | null;
-    msCachingEnabled(): boolean;
-    open(method: string, url: string, async?: boolean, user?: string | null, password?: string | null): void;
+    getResponseHeader(name: string): string | null;
+    open(method: string, url: string): void;
+    open(method: string, url: string, async: boolean, username?: string | null, password?: string | null): void;
     overrideMimeType(mime: string): void;
-    send(data?: any): void;
-    setRequestHeader(header: string, value: string): void;
+    send(body?: object | BodyInit): void;
+    setRequestHeader(name: string, value: string): void;
     readonly DONE: number;
     readonly HEADERS_RECEIVED: number;
     readonly LOADING: number;
@@ -1663,21 +1701,21 @@ declare var XMLHttpRequest: {
 };
 
 interface XMLHttpRequestEventTargetEventMap {
-    "abort": Event;
-    "error": ErrorEvent;
-    "load": Event;
+    "abort": ProgressEvent;
+    "error": ProgressEvent;
+    "load": ProgressEvent;
     "loadend": ProgressEvent;
-    "loadstart": Event;
+    "loadstart": ProgressEvent;
     "progress": ProgressEvent;
     "timeout": ProgressEvent;
 }
 
-interface XMLHttpRequestEventTarget {
-    onabort: ((this: XMLHttpRequest, ev: Event) => any) | null;
-    onerror: ((this: XMLHttpRequest, ev: ErrorEvent) => any) | null;
-    onload: ((this: XMLHttpRequest, ev: Event) => any) | null;
+interface XMLHttpRequestEventTarget extends EventTarget {
+    onabort: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
+    onerror: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
+    onload: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     onloadend: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
-    onloadstart: ((this: XMLHttpRequest, ev: Event) => any) | null;
+    onloadstart: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     onprogress: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     ontimeout: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     addEventListener<K extends keyof XMLHttpRequestEventTargetEventMap>(type: K, listener: (this: XMLHttpRequestEventTarget, ev: XMLHttpRequestEventTargetEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
@@ -1686,7 +1724,12 @@ interface XMLHttpRequestEventTarget {
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 
-interface XMLHttpRequestUpload extends EventTarget, XMLHttpRequestEventTarget {
+declare var XMLHttpRequestEventTarget: {
+    prototype: XMLHttpRequestEventTarget;
+    new(): XMLHttpRequestEventTarget;
+};
+
+interface XMLHttpRequestUpload extends XMLHttpRequestEventTarget {
     addEventListener<K extends keyof XMLHttpRequestEventTargetEventMap>(type: K, listener: (this: XMLHttpRequestUpload, ev: XMLHttpRequestEventTargetEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof XMLHttpRequestEventTargetEventMap>(type: K, listener: (this: XMLHttpRequestUpload, ev: XMLHttpRequestEventTargetEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
@@ -1728,14 +1771,6 @@ interface PerformanceObserverCallback {
     (entries: PerformanceObserverEntryList, observer: PerformanceObserver): void;
 }
 
-interface PositionCallback {
-    (position: Position): void;
-}
-
-interface PositionErrorCallback {
-    (error: PositionError): void;
-}
-
 declare var onmessage: ((this: DedicatedWorkerGlobalScope, ev: MessageEvent) => any) | null;
 declare function close(): void;
 declare function postMessage(message: any, transfer?: any[]): void;
@@ -1772,8 +1807,11 @@ type HeadersInit = Headers | string[][] | Record<string, string>;
 type BodyInit = Blob | BufferSource | FormData | URLSearchParams | ReadableStream | string;
 type RequestInfo = Request | string;
 type PerformanceEntryList = PerformanceEntry[];
+type PushMessageDataInit = BufferSource | string;
+type VibratePattern = number | number[];
 type BufferSource = ArrayBufferView | ArrayBuffer;
-type FormDataEntryValue = string | File;
+type FormDataEntryValue = File | string;
+type IDBValidKey = number | string | Date | BufferSource | IDBArrayKey;
 type AlgorithmIdentifier = string | Algorithm;
 type AAGUID = string;
 type ByteString = string;
@@ -1795,8 +1833,9 @@ type GLushort = number;
 type IDBKeyPath = string;
 type USVString = string;
 type payloadtype = number;
-type ClientTypes = "window" | "worker" | "sharedworker" | "all";
+type MessageEventSource = object | MessagePort | ServiceWorker;
 type BinaryType = "blob" | "arraybuffer";
+type ClientTypes = "window" | "worker" | "sharedworker" | "all";
 type IDBCursorDirection = "next" | "nextunique" | "prev" | "prevunique";
 type IDBRequestReadyState = "pending" | "done";
 type IDBTransactionMode = "readonly" | "readwrite" | "versionchange";
@@ -1807,7 +1846,7 @@ type MediaKeyStatus = "usable" | "expired" | "output-downscaled" | "output-not-a
 type NotificationDirection = "auto" | "ltr" | "rtl";
 type NotificationPermission = "default" | "denied" | "granted";
 type PushEncryptionKeyName = "p256dh" | "auth";
-type PushPermissionState = "granted" | "denied" | "prompt";
+type PushPermissionState = "denied" | "granted" | "prompt";
 type ReferrerPolicy = "" | "no-referrer" | "no-referrer-when-downgrade" | "origin-only" | "origin-when-cross-origin" | "unsafe-url";
 type RequestCache = "default" | "no-store" | "reload" | "no-cache" | "force-cache" | "only-if-cached";
 type RequestCredentials = "omit" | "same-origin" | "include";
@@ -1816,5 +1855,7 @@ type RequestMode = "navigate" | "same-origin" | "no-cors" | "cors";
 type RequestRedirect = "follow" | "error" | "manual";
 type ResponseType = "basic" | "cors" | "default" | "error" | "opaque" | "opaqueredirect";
 type ServiceWorkerState = "installing" | "installed" | "activating" | "activated" | "redundant";
+type ServiceWorkerUpdateViaCache = "imports" | "all" | "none";
 type VisibilityState = "hidden" | "visible" | "prerender" | "unloaded";
+type WorkerType = "classic" | "module";
 type XMLHttpRequestResponseType = "" | "arraybuffer" | "blob" | "document" | "json" | "text";

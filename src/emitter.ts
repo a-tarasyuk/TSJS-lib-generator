@@ -43,7 +43,7 @@ const eventTypeMap: Record<string, string> = {
 
 // Used to decide if a member should be emitted given its static property and
 // the intended scope level.
-function matchScope(scope: EmitScope, x: Browser.Method) {
+function matchScope(scope: EmitScope, x: { static?: 1 | undefined }) {
     return scope === EmitScope.All || (scope === EmitScope.StaticOnly) === !!x.static;
 }
 
@@ -227,26 +227,13 @@ export function emitWebIDl(webidl: Browser.WebIdl, flavor: Flavor) {
     }
 
     function getEventTypeInInterface(eName: string, i: Browser.Interface) {
-        switch (i.name) {
-            case "XMLHttpRequest":
-                if (eName === "readystatechange") return "Event";
-                else return "ProgressEvent";
-
-            case "IDBDatabase":
-            case "IDBTransaction":
-            case "MSBaseReader":
-            case "XMLHttpRequestEventTarget":
-                if (eName === "abort") return "Event";
-
-            default:
-                if (i.events) {
-                    const event = i.events.event.find(e => e.name === eName);
-                    if (event && event.type) {
-                        return event.type;
-                    }
-                }
-                return eNameToEType[eName] || "Event";
+        if (i.events) {
+            const event = i.events.event.find(e => e.name === eName);
+            if (event && event.type) {
+                return event.type;
+            }
         }
+        return eNameToEType[eName] || "Event";
     }
 
     /// Determine if interface1 depends on interface2
@@ -303,7 +290,7 @@ export function emitWebIDl(webidl: Browser.WebIdl, flavor: Flavor) {
 
     function makeArrayType(elementType: string, obj: Browser.Typed): string {
         if (obj.subtype && !Array.isArray(obj.subtype) && obj.subtype.type === "float") {
-            return "Float32Array";
+            return "number[] | Float32Array";
         }
 
         return elementType.includes("|") ? `(${elementType})[]` : `${elementType}[]`;
@@ -631,10 +618,9 @@ export function emitWebIDl(webidl: Browser.WebIdl, flavor: Flavor) {
     }
 
     function emitProperties(prefix: string, emitScope: EmitScope, i: Browser.Interface, conflictedMembers: Set<string>) {
-        // Note: the schema file shows the property doesn't have "static" attribute,
-        // therefore all properties are emited for the instance type.
-        if (emitScope !== EmitScope.StaticOnly && i.properties) {
+        if (i.properties) {
             mapToArray(i.properties.property)
+                .filter(m => matchScope(emitScope, m))
                 .filter(p => !isCovariantEventHandler(i, p))
                 .sort(compareName)
                 .forEach(p => emitProperty(prefix, i, emitScope, p, conflictedMembers));

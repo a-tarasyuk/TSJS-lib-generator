@@ -62,6 +62,10 @@ function getExposure(extAttrs: webidl2.ExtendedAttributes[]) {
     return "Window";
 }
 
+function hasExtAttr(extAttrs: webidl2.ExtendedAttributes[], name: string) {
+    return extAttrs.some(extAttr => extAttr.name === name);
+}
+
 function convertInterface(i: webidl2.InterfaceType) {
     const result = convertInterfaceCommon(i);
     if (i.inheritance) {
@@ -84,7 +88,8 @@ function convertInterfaceCommon(i: webidl2.InterfaceType | webidl2.InterfaceMixi
         methods: { method: {} },
         properties: { property: {} },
         constructor: getConstructor(i.extAttrs, i.name),
-        exposed: getExposure(i.extAttrs)
+        exposed: getExposure(i.extAttrs),
+        "no-interface-object": hasExtAttr(i.extAttrs, "NoInterfaceObject") ? 1 : undefined
     };
     for (const member of i.members) {
         if (member.type === "const") {
@@ -172,7 +177,9 @@ function convertAttribute(attribute: webidl2.AttributeMemberType): Browser.Prope
     return {
         name: attribute.name,
         ...convertIdlType(attribute.idlType),
-        "read-only": attribute.readonly ? 1 : undefined
+        static: attribute.static ? 1 : undefined,
+        "read-only": attribute.readonly ? 1 : undefined,
+        "event-handler": attribute.idlType.idlType === "EventHandler" ? attribute.name.slice(2) : undefined
     }
 }
 

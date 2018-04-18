@@ -58,6 +58,11 @@ interface AnimationEventInit extends EventInit {
     elapsedTime?: number;
 }
 
+interface AnimationPlaybackEventInit extends EventInit {
+    currentTime?: number | null;
+    timelineTime?: number | null;
+}
+
 interface AssertionOptions {
     allowList?: ScopedCredentialDescriptor[];
     extensions?: WebAuthnExtensions;
@@ -114,6 +119,25 @@ interface AudioTimestamp {
     performanceTime?: number;
 }
 
+interface BaseComputedKeyframe {
+    composite?: CompositeOperation | null;
+    computedOffset?: number;
+    easing?: string;
+    offset?: number | null;
+}
+
+interface BaseKeyframe {
+    composite?: CompositeOperation | null;
+    easing?: string;
+    offset?: number | null;
+}
+
+interface BasePropertyIndexedKeyframe {
+    composite?: CompositeOperation | (CompositeOperation | null)[];
+    easing?: string | string[];
+    offset?: number | (number | null)[];
+}
+
 interface BiquadFilterOptions extends AudioNodeOptions {
     Q?: number;
     detune?: number;
@@ -151,7 +175,6 @@ interface ClientData {
 }
 
 interface ClientQueryOptions {
-    includeReserved?: boolean;
     includeUncontrolled?: boolean;
     type?: ClientTypes;
 }
@@ -164,6 +187,14 @@ interface CloseEventInit extends EventInit {
 
 interface CompositionEventInit extends UIEventInit {
     data?: string;
+}
+
+interface ComputedEffectTiming extends EffectTiming {
+    activeDuration?: number;
+    currentIteration?: number | null;
+    endTime?: number;
+    localTime?: number | null;
+    progress?: number | null;
 }
 
 interface ConfirmSiteSpecificExceptionsInformation extends ExceptionInformation {
@@ -293,6 +324,10 @@ interface DeviceRotationRateDict {
     gamma?: number | null;
 }
 
+interface DocumentTimelineOptions {
+    originTime?: number;
+}
+
 interface DoubleRange {
     max?: number;
     min?: number;
@@ -324,6 +359,17 @@ interface EcdhKeyDeriveParams extends Algorithm {
 
 interface EcdsaParams extends Algorithm {
     hash: string | Algorithm;
+}
+
+interface EffectTiming {
+    delay?: number;
+    direction?: PlaybackDirection;
+    duration?: number | string;
+    easing?: string;
+    endDelay?: number;
+    fill?: FillMode;
+    iterationStart?: number;
+    iterations?: number;
 }
 
 interface ErrorEventInit extends EventInit {
@@ -373,14 +419,15 @@ interface ExtendableMessageEventInit extends ExtendableEventInit {
     data?: any;
     lastEventId?: string;
     origin?: string;
-    ports?: MessagePort[] | null;
-    source?: object | ServiceWorker | MessagePort | null;
+    ports?: MessagePort[];
+    source?: object | ServiceWorker | MessagePort;
 }
 
 interface FetchEventInit extends ExtendableEventInit {
     clientId?: string;
+    preloadResponse: Promise<any>;
     request: Request;
-    reservedClientId?: string;
+    resultingClientId?: string;
     targetClientId?: string;
 }
 
@@ -506,6 +553,15 @@ interface KeyboardEventInit extends EventModifierInit {
     key?: string;
     location?: number;
     repeat?: boolean;
+}
+
+interface KeyframeAnimationOptions extends KeyframeEffectOptions {
+    id?: string;
+}
+
+interface KeyframeEffectOptions extends EffectTiming {
+    composite?: CompositeOperation;
+    iterationComposite?: IterationCompositeOperation;
 }
 
 interface LongRange {
@@ -844,6 +900,7 @@ interface MediaKeySystemMediaCapability {
 
 interface MediaStreamConstraints {
     audio?: boolean | MediaTrackConstraints;
+    peerIdentity?: string;
     video?: boolean | MediaTrackConstraints;
 }
 
@@ -961,18 +1018,37 @@ interface MutationObserverInit {
     subtree?: boolean;
 }
 
+interface NavigationPreloadState {
+    enabled?: boolean;
+    headerValue?: string;
+}
+
+interface NotificationAction {
+    action: string;
+    icon?: string;
+    title: string;
+}
+
 interface NotificationEventInit extends ExtendableEventInit {
     action?: string;
     notification: Notification;
 }
 
 interface NotificationOptions {
+    actions?: NotificationAction[];
+    badge?: string;
     body?: string;
     data?: any;
     dir?: NotificationDirection;
     icon?: string;
+    image?: string;
     lang?: string;
+    renotify?: boolean;
+    requireInteraction?: boolean;
+    silent?: boolean;
     tag?: string;
+    timestamp?: number;
+    vibrate?: VibratePattern;
 }
 
 interface ObjectURLOptions {
@@ -981,6 +1057,17 @@ interface ObjectURLOptions {
 
 interface OfflineAudioCompletionEventInit extends EventInit {
     renderedBuffer: AudioBuffer;
+}
+
+interface OptionalEffectTiming {
+    delay?: number;
+    direction?: PlaybackDirection;
+    duration?: number | string;
+    easing?: string;
+    endDelay?: number;
+    fill?: FillMode;
+    iterationStart?: number;
+    iterations?: number;
 }
 
 interface OscillatorOptions extends AudioNodeOptions {
@@ -1081,8 +1168,8 @@ interface PeriodicWaveConstraints {
 }
 
 interface PeriodicWaveOptions extends PeriodicWaveConstraints {
-    imag?: Float32Array;
-    real?: Float32Array;
+    imag?: number[] | Float32Array;
+    real?: number[] | Float32Array;
 }
 
 interface PointerEventInit extends MouseEventInit {
@@ -1113,7 +1200,7 @@ interface ProgressEventInit extends EventInit {
 }
 
 interface PushEventInit extends ExtendableEventInit {
-    data?: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | string | null;
+    data?: PushMessageDataInit;
 }
 
 interface PushSubscriptionChangeInit extends ExtendableEventInit {
@@ -1121,8 +1208,14 @@ interface PushSubscriptionChangeInit extends ExtendableEventInit {
     oldSubscription?: PushSubscription;
 }
 
+interface PushSubscriptionJSON {
+    endpoint?: string;
+    expirationTime?: number | null;
+    keys?: Record<string, string>;
+}
+
 interface PushSubscriptionOptionsInit {
-    applicationServerKey?: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer | string | null;
+    applicationServerKey?: BufferSource | string;
     userVisibleOnly?: boolean;
 }
 
@@ -1131,15 +1224,39 @@ interface QueuingStrategy {
     size?: WritableStreamChunkCallback;
 }
 
+interface RTCAnswerOptions extends RTCOfferAnswerOptions {
+}
+
+interface RTCCertificateExpiration {
+    expires?: number;
+}
+
 interface RTCConfiguration {
     bundlePolicy?: RTCBundlePolicy;
+    certificates?: RTCCertificate[];
+    iceCandidatePoolSize?: number;
     iceServers?: RTCIceServer[];
     iceTransportPolicy?: RTCIceTransportPolicy;
     peerIdentity?: string;
+    rtcpMuxPolicy?: RTCRtcpMuxPolicy;
 }
 
 interface RTCDTMFToneChangeEventInit extends EventInit {
-    tone?: string;
+    tone: string;
+}
+
+interface RTCDataChannelEventInit extends EventInit {
+    channel: RTCDataChannel;
+}
+
+interface RTCDataChannelInit {
+    id?: number;
+    maxPacketLifeTime?: number;
+    maxRetransmits?: number;
+    negotiated?: boolean;
+    ordered?: boolean;
+    priority?: RTCPriorityType;
+    protocol?: string;
 }
 
 interface RTCDtlsFingerprint {
@@ -1150,6 +1267,10 @@ interface RTCDtlsFingerprint {
 interface RTCDtlsParameters {
     fingerprints?: RTCDtlsFingerprint[];
     role?: RTCDtlsRole;
+}
+
+interface RTCErrorEventInit extends EventInit {
+    error?: RTCError | null;
 }
 
 interface RTCIceCandidateAttributes extends RTCStats {
@@ -1179,13 +1300,14 @@ interface RTCIceCandidateDictionary {
 
 interface RTCIceCandidateInit {
     candidate?: string;
-    sdpMLineIndex?: number;
-    sdpMid?: string;
+    sdpMLineIndex?: number | null;
+    sdpMid?: string | null;
+    usernameFragment?: string;
 }
 
 interface RTCIceCandidatePair {
-    local?: RTCIceCandidateDictionary;
-    remote?: RTCIceCandidateDictionary;
+    local?: RTCIceCandidate;
+    remote?: RTCIceCandidate;
 }
 
 interface RTCIceCandidatePairStats extends RTCStats {
@@ -1211,15 +1333,41 @@ interface RTCIceGatherOptions {
 }
 
 interface RTCIceParameters {
-    iceLite?: boolean | null;
     password?: string;
     usernameFragment?: string;
 }
 
 interface RTCIceServer {
-    credential?: string | null;
-    urls?: any;
-    username?: string | null;
+    credential?: string | RTCOAuthCredential;
+    credentialType?: RTCIceCredentialType;
+    urls: string | string[];
+    username?: string;
+}
+
+interface RTCIdentityAssertionResult {
+    assertion: string;
+    idp: RTCIdentityProviderDetails;
+}
+
+interface RTCIdentityProvider {
+    generateAssertion: GenerateAssertionCallback;
+    validateAssertion: ValidateAssertionCallback;
+}
+
+interface RTCIdentityProviderDetails {
+    domain: string;
+    protocol?: string;
+}
+
+interface RTCIdentityProviderOptions {
+    peerIdentity?: string;
+    protocol?: string;
+    usernameHint?: string;
+}
+
+interface RTCIdentityValidationResult {
+    contents: string;
+    identity: string;
 }
 
 interface RTCInboundRTPStreamStats extends RTCRTPStreamStats {
@@ -1247,11 +1395,19 @@ interface RTCMediaStreamTrackStats extends RTCStats {
     trackIdentifier?: string;
 }
 
-interface RTCOfferOptions {
-    iceRestart?: boolean;
-    offerToReceiveAudio?: number;
-    offerToReceiveVideo?: number;
+interface RTCOAuthCredential {
+    accessToken: string;
+    macKey: string;
+}
+
+interface RTCOfferAnswerOptions {
     voiceActivityDetection?: boolean;
+}
+
+interface RTCOfferOptions extends RTCOfferAnswerOptions {
+    iceRestart?: boolean;
+    offerToReceiveAudio?: boolean;
+    offerToReceiveVideo?: boolean;
 }
 
 interface RTCOutboundRTPStreamStats extends RTCRTPStreamStats {
@@ -1261,8 +1417,16 @@ interface RTCOutboundRTPStreamStats extends RTCRTPStreamStats {
     targetBitrate?: number;
 }
 
+interface RTCPeerConnectionIceErrorEventInit extends EventInit {
+    errorCode: number;
+    hostCandidate?: string;
+    statusText?: string;
+    url?: string;
+}
+
 interface RTCPeerConnectionIceEventInit extends EventInit {
-    candidate?: RTCIceCandidate;
+    candidate?: RTCIceCandidate | null;
+    url?: string | null;
 }
 
 interface RTCRTPStreamStats extends RTCStats {
@@ -1286,65 +1450,45 @@ interface RTCRtcpFeedback {
 
 interface RTCRtcpParameters {
     cname?: string;
-    mux?: boolean;
     reducedSize?: boolean;
-    ssrc?: number;
 }
 
 interface RTCRtpCapabilities {
     codecs?: RTCRtpCodecCapability[];
-    fecMechanisms?: string[];
-    headerExtensions?: RTCRtpHeaderExtension[];
+    headerExtensions?: RTCRtpHeaderExtensionCapability[];
 }
 
 interface RTCRtpCodecCapability {
+    channels?: number;
     clockRate?: number;
-    kind?: string;
-    maxSpatialLayers?: number;
-    maxTemporalLayers?: number;
-    maxptime?: number;
-    name?: string;
-    numChannels?: number;
-    options?: any;
-    parameters?: any;
-    preferredPayloadType?: number;
-    ptime?: number;
-    rtcpFeedback?: RTCRtcpFeedback[];
-    svcMultiStreamSupport?: boolean;
+    mimeType?: string;
+    sdpFmtpLine?: string;
 }
 
 interface RTCRtpCodecParameters {
+    channels?: number;
     clockRate?: number;
-    maxptime?: number;
-    name?: string;
-    numChannels?: number;
-    parameters?: any;
+    mimeType?: string;
     payloadType?: number;
-    ptime?: number;
-    rtcpFeedback?: RTCRtcpFeedback[];
+    sdpFmtpLine?: string;
 }
 
 interface RTCRtpContributingSource {
     audioLevel?: number;
-    csrc?: number;
-    timestamp?: number;
+    source: number;
+    timestamp: number;
 }
 
 interface RTCRtpEncodingParameters {
     active?: boolean;
     codecPayloadType?: number;
-    dependencyEncodingIds?: string[];
-    encodingId?: string;
-    fec?: RTCRtpFecParameters;
-    framerateScale?: number;
+    dtx?: RTCDtxStatus;
     maxBitrate?: number;
     maxFramerate?: number;
-    minQuality?: number;
-    priority?: number;
-    resolutionScale?: number;
-    rtx?: RTCRtpRtxParameters;
-    ssrc?: number;
-    ssrcRange?: RTCSsrcRange;
+    priority?: RTCPriorityType;
+    ptime?: number;
+    rid?: string;
+    scaleResolutionDownBy?: number;
 }
 
 interface RTCRtpFecParameters {
@@ -1359,23 +1503,40 @@ interface RTCRtpHeaderExtension {
     uri?: string;
 }
 
-interface RTCRtpHeaderExtensionParameters {
-    encrypt?: boolean;
-    id?: number;
+interface RTCRtpHeaderExtensionCapability {
     uri?: string;
 }
 
+interface RTCRtpHeaderExtensionParameters {
+    encrypted?: boolean;
+    id: number;
+    uri: string;
+}
+
 interface RTCRtpParameters {
-    codecs?: RTCRtpCodecParameters[];
-    degradationPreference?: RTCDegradationPreference;
-    encodings?: RTCRtpEncodingParameters[];
-    headerExtensions?: RTCRtpHeaderExtensionParameters[];
-    muxId?: string;
-    rtcp?: RTCRtcpParameters;
+    codecs: RTCRtpCodecParameters[];
+    encodings: RTCRtpEncodingParameters[];
+    headerExtensions: RTCRtpHeaderExtensionParameters[];
+    rtcp: RTCRtcpParameters;
 }
 
 interface RTCRtpRtxParameters {
     ssrc?: number;
+}
+
+interface RTCRtpSendParameters extends RTCRtpParameters {
+    degradationPreference?: RTCDegradationPreference;
+    transactionId: string;
+}
+
+interface RTCRtpSynchronizationSource extends RTCRtpContributingSource {
+    voiceActivityFlag?: boolean;
+}
+
+interface RTCRtpTransceiverInit {
+    direction?: RTCRtpTransceiverDirection;
+    sendEncodings?: RTCRtpEncodingParameters[];
+    streams?: MediaStream[];
 }
 
 interface RTCRtpUnhandled {
@@ -1386,7 +1547,7 @@ interface RTCRtpUnhandled {
 
 interface RTCSessionDescriptionInit {
     sdp?: string;
-    type?: RTCSdpType;
+    type: RTCSdpType;
 }
 
 interface RTCSrtpKeyParam {
@@ -1410,13 +1571,23 @@ interface RTCSsrcRange {
 }
 
 interface RTCStats {
-    id?: string;
-    msType?: MSStatsType;
-    timestamp?: number;
-    type?: RTCStatsType;
+    id: string;
+    timestamp: number;
+    type: RTCStatsType;
+}
+
+interface RTCStatsEventInit {
+    report?: RTCStatsReport;
 }
 
 interface RTCStatsReport {
+}
+
+interface RTCTrackEventInit extends EventInit {
+    receiver: RTCRtpReceiver;
+    streams?: MediaStream[];
+    track: MediaStreamTrack;
+    transceiver: RTCRtpTransceiver;
 }
 
 interface RTCTransportStats extends RTCStats {
@@ -1431,6 +1602,8 @@ interface RTCTransportStats extends RTCStats {
 
 interface RegistrationOptions {
     scope?: string;
+    type?: WorkerType;
+    updateViaCache?: ServiceWorkerUpdateViaCache;
 }
 
 interface RequestInit {
@@ -1617,8 +1790,8 @@ interface VRDisplayEventInit extends EventInit {
 }
 
 interface VRLayer {
-    leftBounds?: Float32Array | null;
-    rightBounds?: Float32Array | null;
+    leftBounds?: number[] | Float32Array | null;
+    rightBounds?: number[] | Float32Array | null;
     source?: HTMLCanvasElement | null;
 }
 
@@ -1629,7 +1802,7 @@ interface VRStageParameters {
 }
 
 interface WaveShaperOptions extends AudioNodeOptions {
-    curve?: Float32Array;
+    curve?: number[] | Float32Array;
     oversample?: OverSampleType;
 }
 
@@ -1745,35 +1918,56 @@ declare var AnalyserNode: {
     new(): AnalyserNode;
 };
 
-interface Animation {
+interface Animatable {
+    animate(keyframes: any, options?: number | KeyframeAnimationOptions): Animation;
+    getAnimations(): Animation[];
+}
+
+interface AnimationEventMap {
+    "cancel": AnimationPlaybackEvent;
+    "finish": AnimationPlaybackEvent;
+}
+
+interface Animation extends EventTarget {
     currentTime: number | null;
-    effect: AnimationEffectReadOnly;
+    effect: AnimationEffect | null;
     readonly finished: Promise<Animation>;
     id: string;
+    oncancel: ((this: Animation, ev: AnimationPlaybackEvent) => any) | null;
+    onfinish: ((this: Animation, ev: AnimationPlaybackEvent) => any) | null;
     readonly pending: boolean;
-    readonly playState: "idle" | "running" | "paused" | "finished";
+    readonly playState: AnimationPlayState;
     playbackRate: number;
     readonly ready: Promise<Animation>;
-    startTime: number;
-    timeline: AnimationTimeline;
+    startTime: number | null;
+    timeline: AnimationTimeline | null;
     cancel(): void;
     finish(): void;
-    oncancel: (this: Animation, ev: AnimationPlaybackEvent) => any;
-    onfinish: (this: Animation, ev: AnimationPlaybackEvent) => any;
     pause(): void;
     play(): void;
     reverse(): void;
+    updatePlaybackRate(playbackRate: number): void;
+    addEventListener<K extends keyof AnimationEventMap>(type: K, listener: (this: Animation, ev: AnimationEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof AnimationEventMap>(type: K, listener: (this: Animation, ev: AnimationEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 
 declare var Animation: {
     prototype: Animation;
-    new(effect?: AnimationEffectReadOnly, timeline?: AnimationTimeline): Animation;
+    new(effect?: AnimationEffect | null, timeline?: AnimationTimeline | null): Animation;
 };
 
-interface AnimationEffectReadOnly {
-    readonly timing: number;
-    getComputedTiming(): ComputedTimingProperties;
+interface AnimationEffect {
+    getComputedTiming(): ComputedEffectTiming;
+    getTiming(): EffectTiming;
+    updateTiming(timing?: OptionalEffectTiming): void;
 }
+
+declare var AnimationEffect: {
+    prototype: AnimationEffect;
+    new(): AnimationEffect;
+};
 
 interface AnimationEvent extends Event {
     readonly animationName: string;
@@ -2032,7 +2226,7 @@ interface AudioParam {
     linearRampToValueAtTime(value: number, endTime: number): AudioParam;
     setTargetAtTime(target: number, startTime: number, timeConstant: number): AudioParam;
     setValueAtTime(value: number, startTime: number): AudioParam;
-    setValueCurveAtTime(values: Float32Array, startTime: number, duration: number): AudioParam;
+    setValueCurveAtTime(values: number[] | Float32Array, startTime: number, duration: number): AudioParam;
 }
 
 declare var AudioParam: {
@@ -2803,13 +2997,13 @@ declare var CSSSupportsRule: {
 };
 
 interface Cache {
-    add(request: Request | string): Promise<void>;
-    addAll(requests: (Request | string)[]): Promise<void>;
-    delete(request: Request | string, options?: CacheQueryOptions): Promise<boolean>;
-    keys(request?: Request | string, options?: CacheQueryOptions): Promise<Request[]>;
-    match(request: Request | string, options?: CacheQueryOptions): Promise<Response>;
-    matchAll(request?: Request | string, options?: CacheQueryOptions): Promise<Response[]>;
-    put(request: Request | string, response: Response): Promise<void>;
+    add(request: RequestInfo): Promise<void>;
+    addAll(requests: RequestInfo[]): Promise<void>;
+    delete(request: RequestInfo, options?: CacheQueryOptions): Promise<boolean>;
+    keys(request?: RequestInfo, options?: CacheQueryOptions): Promise<ReadonlyArray<Request>>;
+    match(request: RequestInfo, options?: CacheQueryOptions): Promise<Response | undefined>;
+    matchAll(request?: RequestInfo, options?: CacheQueryOptions): Promise<ReadonlyArray<Response>>;
+    put(request: RequestInfo, response: Response): Promise<void>;
 }
 
 declare var Cache: {
@@ -2821,7 +3015,7 @@ interface CacheStorage {
     delete(cacheName: string): Promise<boolean>;
     has(cacheName: string): Promise<boolean>;
     keys(): Promise<string[]>;
-    match(request: Request | string, options?: CacheQueryOptions): Promise<any>;
+    match(request: RequestInfo, options?: CacheQueryOptions): Promise<Response | undefined>;
     open(cacheName: string): Promise<Cache>;
 }
 
@@ -3122,11 +3316,6 @@ interface Coordinates {
     readonly longitude: number;
     readonly speed: number | null;
 }
-
-declare var Coordinates: {
-    prototype: Coordinates;
-    new(): Coordinates;
-};
 
 interface CountQueuingStrategy {
     highWaterMark: number;
@@ -4209,6 +4398,7 @@ interface Document extends Node, GlobalEventHandlers, ParentNode, DocumentEvent 
      * Retrieves a collection of styleSheet objects representing the style sheets that correspond to each instance of a link or style object in the document.
      */
     readonly styleSheets: StyleSheetList;
+    readonly timeline: DocumentTimeline;
     /**
      * Contains the title of the document.
      */
@@ -4379,6 +4569,7 @@ interface Document extends Node, GlobalEventHandlers, ParentNode, DocumentEvent 
      */
     /** @deprecated */
     focus(): void;
+    getAnimations(): Animation[];
     /**
      * Returns a reference to the first object with the specified value of the ID or NAME attribute.
      * @param elementId String that specifies the ID value. Case-insensitive.
@@ -4521,12 +4712,17 @@ interface DocumentEvent {
     createEvent(eventInterface: "ProgressEvent"): ProgressEvent;
     createEvent(eventInterface: "PromiseRejectionEvent"): PromiseRejectionEvent;
     createEvent(eventInterface: "RTCDTMFToneChangeEvent"): RTCDTMFToneChangeEvent;
+    createEvent(eventInterface: "RTCDataChannelEvent"): RTCDataChannelEvent;
     createEvent(eventInterface: "RTCDtlsTransportStateChangedEvent"): RTCDtlsTransportStateChangedEvent;
+    createEvent(eventInterface: "RTCErrorEvent"): RTCErrorEvent;
     createEvent(eventInterface: "RTCIceCandidatePairChangedEvent"): RTCIceCandidatePairChangedEvent;
     createEvent(eventInterface: "RTCIceGathererEvent"): RTCIceGathererEvent;
     createEvent(eventInterface: "RTCIceTransportStateChangedEvent"): RTCIceTransportStateChangedEvent;
+    createEvent(eventInterface: "RTCPeerConnectionIceErrorEvent"): RTCPeerConnectionIceErrorEvent;
     createEvent(eventInterface: "RTCPeerConnectionIceEvent"): RTCPeerConnectionIceEvent;
     createEvent(eventInterface: "RTCSsrcConflictEvent"): RTCSsrcConflictEvent;
+    createEvent(eventInterface: "RTCStatsEvent"): RTCStatsEvent;
+    createEvent(eventInterface: "RTCTrackEvent"): RTCTrackEvent;
     createEvent(eventInterface: "SVGZoomEvent"): SVGZoomEvent;
     createEvent(eventInterface: "SVGZoomEvents"): SVGZoomEvent;
     createEvent(eventInterface: "SecurityPolicyViolationEvent"): SecurityPolicyViolationEvent;
@@ -4562,6 +4758,14 @@ interface DocumentOrShadowRoot {
     elementsFromPoint(x: number, y: number): Element[];
     getSelection(): Selection | null;
 }
+
+interface DocumentTimeline extends AnimationTimeline {
+}
+
+declare var DocumentTimeline: {
+    prototype: DocumentTimeline;
+    new(options?: DocumentTimelineOptions): DocumentTimeline;
+};
 
 interface DocumentType extends Node, ChildNode {
     readonly entities: NamedNodeMap;
@@ -4662,7 +4866,7 @@ interface ElementEventMap extends GlobalEventHandlersEventMap {
     "webkitfullscreenerror": Event;
 }
 
-interface Element extends Node, GlobalEventHandlers, ElementTraversal, ParentNode, ChildNode {
+interface Element extends Node, GlobalEventHandlers, ElementTraversal, ParentNode, ChildNode, Animatable {
     readonly assignedSlot: HTMLSlotElement | null;
     readonly attributes: NamedNodeMap;
     readonly classList: DOMTokenList;
@@ -5007,12 +5211,12 @@ interface FormData {
     getAll(name: string): FormDataEntryValue[];
     has(name: string): boolean;
     set(name: string, value: string | Blob, fileName?: string): void;
+    forEach(callbackfn: (value: FormDataEntryValue, key: string, parent: FormData) => void, thisArg?: any): void;
 }
 
 declare var FormData: {
     prototype: FormData;
-    new(): FormData;
-    new(form: HTMLFormElement): FormData;
+    new(form?: HTMLFormElement): FormData;
 };
 
 interface GainNode extends AudioNode {
@@ -5094,11 +5298,6 @@ interface Geolocation {
     getCurrentPosition(successCallback: PositionCallback, errorCallback?: PositionErrorCallback, options?: PositionOptions): void;
     watchPosition(successCallback: PositionCallback, errorCallback?: PositionErrorCallback, options?: PositionOptions): number;
 }
-
-declare var Geolocation: {
-    prototype: Geolocation;
-    new(): Geolocation;
-};
 
 interface GetSVGDocument {
     getSVGDocument(): Document;
@@ -8364,17 +8563,17 @@ interface HkdfCtrParams extends Algorithm {
     label: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer;
 }
 
-interface IDBArrayKey extends Array<number | string | Date | IDBArrayKey> {
+interface IDBArrayKey extends Array<IDBValidKey> {
 }
 
 interface IDBCursor {
     readonly direction: IDBCursorDirection;
-    readonly key: IDBKeyRange | number | string | Date | IDBArrayKey;
-    readonly primaryKey: any;
+    readonly key: IDBValidKey | IDBKeyRange;
+    readonly primaryKey: IDBValidKey | IDBKeyRange;
     readonly source: IDBObjectStore | IDBIndex;
     advance(count: number): void;
-    continue(key?: IDBKeyRange | number | string | Date | IDBArrayKey): void;
-    continuePrimaryKey(key: any, primaryKey: any): void;
+    continue(key?: IDBValidKey | IDBKeyRange): void;
+    continuePrimaryKey(key: IDBValidKey | IDBKeyRange, primaryKey: IDBValidKey | IDBKeyRange): void;
     delete(): IDBRequest;
     update(value: any): IDBRequest;
 }
@@ -8444,13 +8643,13 @@ interface IDBIndex {
     name: string;
     readonly objectStore: IDBObjectStore;
     readonly unique: boolean;
-    count(key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    get(key: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    getAll(query?: any, count?: number): IDBRequest;
-    getAllKeys(query?: any, count?: number): IDBRequest;
-    getKey(key: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    openCursor(range?: IDBKeyRange | number | string | Date | IDBArrayKey, direction?: IDBCursorDirection): IDBRequest;
-    openKeyCursor(range?: IDBKeyRange | number | string | Date | IDBArrayKey, direction?: IDBCursorDirection): IDBRequest;
+    count(key?: IDBValidKey | IDBKeyRange): IDBRequest;
+    get(key: IDBValidKey | IDBKeyRange): IDBRequest;
+    getAll(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getAllKeys(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getKey(key: IDBValidKey | IDBKeyRange): IDBRequest;
+    openCursor(range?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
+    openKeyCursor(range?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
 }
 
 declare var IDBIndex: {
@@ -8481,20 +8680,20 @@ interface IDBObjectStore {
     readonly keyPath: string | string[];
     name: string;
     readonly transaction: IDBTransaction;
-    add(value: any, key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
+    add(value: any, key?: IDBValidKey | IDBKeyRange): IDBRequest;
     clear(): IDBRequest;
-    count(key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
-    createIndex(name: string, keyPath: string | string[], optionalParameters?: IDBIndexParameters): IDBIndex;
-    delete(key: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
+    count(key?: IDBValidKey | IDBKeyRange): IDBRequest;
+    createIndex(name: string, keyPath: string | string[], options?: IDBIndexParameters): IDBIndex;
+    delete(key: IDBValidKey | IDBKeyRange): IDBRequest;
     deleteIndex(name: string): void;
-    get(query: any): IDBRequest;
-    getAll(query?: any, count?: number): IDBRequest;
-    getAllKeys(query?: any, count?: number): IDBRequest;
-    getKey(query: any): IDBRequest;
+    get(query: IDBValidKey | IDBKeyRange): IDBRequest;
+    getAll(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getAllKeys(query?: IDBValidKey | IDBKeyRange, count?: number): IDBRequest;
+    getKey(query: IDBValidKey | IDBKeyRange): IDBRequest;
     index(name: string): IDBIndex;
-    openCursor(range?: IDBKeyRange | number | string | Date | IDBArrayKey, direction?: IDBCursorDirection): IDBRequest;
-    openKeyCursor(query?: any, direction?: IDBCursorDirection): IDBRequest;
-    put(value: any, key?: IDBKeyRange | number | string | Date | IDBArrayKey): IDBRequest;
+    openCursor(range?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
+    openKeyCursor(query?: IDBValidKey | IDBKeyRange, direction?: IDBCursorDirection): IDBRequest;
+    put(value: any, key?: IDBValidKey | IDBKeyRange): IDBRequest;
 }
 
 declare var IDBObjectStore: {
@@ -8685,6 +8884,20 @@ declare var KeyboardEvent: {
     readonly DOM_KEY_LOCATION_NUMPAD: number;
     readonly DOM_KEY_LOCATION_RIGHT: number;
     readonly DOM_KEY_LOCATION_STANDARD: number;
+};
+
+interface KeyframeEffect extends AnimationEffect {
+    composite: CompositeOperation;
+    iterationComposite: IterationCompositeOperation;
+    target: Element | null;
+    getKeyframes(): any[];
+    setKeyframes(keyframes: any): void;
+}
+
+declare var KeyframeEffect: {
+    prototype: KeyframeEffect;
+    new(target: Element | null, keyframes: object | null, options?: number | KeyframeEffectOptions): KeyframeEffect;
+    new(source: KeyframeEffect): KeyframeEffect;
 };
 
 interface LinkStyle {
@@ -9293,6 +9506,7 @@ declare var MediaStreamEvent: {
 
 interface MediaStreamTrackEventMap {
     "ended": MediaStreamErrorEvent;
+    "isolationchange": Event;
     "mute": Event;
     "overconstrained": MediaStreamErrorEvent;
     "unmute": Event;
@@ -9301,10 +9515,12 @@ interface MediaStreamTrackEventMap {
 interface MediaStreamTrack extends EventTarget {
     enabled: boolean;
     readonly id: string;
+    readonly isolated: boolean;
     readonly kind: string;
     readonly label: string;
     readonly muted: boolean;
     onended: ((this: MediaStreamTrack, ev: MediaStreamErrorEvent) => any) | null;
+    onisolationchange: ((this: MediaStreamTrack, ev: Event) => any) | null;
     onmute: ((this: MediaStreamTrack, ev: Event) => any) | null;
     onoverconstrained: ((this: MediaStreamTrack, ev: MediaStreamErrorEvent) => any) | null;
     onunmute: ((this: MediaStreamTrack, ev: Event) => any) | null;
@@ -9351,7 +9567,7 @@ interface MessageEvent extends Event {
     readonly data: any;
     readonly origin: string;
     readonly ports: ReadonlyArray<MessagePort>;
-    readonly source: Window | null;
+    readonly source: MessageEventSource;
     initMessageEvent(type: string, bubbles: boolean, cancelable: boolean, data: any, origin: string, lastEventId: string, source: Window): void;
 }
 
@@ -9504,6 +9720,18 @@ interface NamedNodeMap {
 declare var NamedNodeMap: {
     prototype: NamedNodeMap;
     new(): NamedNodeMap;
+};
+
+interface NavigationPreloadManager {
+    disable(): Promise<void>;
+    enable(): Promise<void>;
+    getState(): Promise<NavigationPreloadState>;
+    setHeaderValue(value: string): Promise<void>;
+}
+
+declare var NavigationPreloadManager: {
+    prototype: NavigationPreloadManager;
+    new(): NavigationPreloadManager;
 };
 
 interface Navigator extends NavigatorID, NavigatorOnLine, NavigatorContentUtils, NavigatorStorageUtils, MSNavigatorDoNotTrack, MSFileSaver, NavigatorBeacon, NavigatorConcurrentHardware, NavigatorUserMedia, NavigatorLanguage {
@@ -9723,18 +9951,25 @@ interface NotificationEventMap {
 }
 
 interface Notification extends EventTarget {
-    readonly body: string | null;
+    readonly actions: ReadonlyArray<NotificationAction>;
+    readonly badge: string;
+    readonly body: string;
     readonly data: any;
     readonly dir: NotificationDirection;
-    readonly icon: string | null;
-    readonly lang: string | null;
+    readonly icon: string;
+    readonly image: string;
+    readonly lang: string;
     onclick: ((this: Notification, ev: Event) => any) | null;
     onclose: ((this: Notification, ev: Event) => any) | null;
     onerror: ((this: Notification, ev: Event) => any) | null;
     onshow: ((this: Notification, ev: Event) => any) | null;
-    readonly permission: NotificationPermission;
-    readonly tag: string | null;
+    readonly renotify: boolean;
+    readonly requireInteraction: boolean;
+    readonly silent: boolean;
+    readonly tag: string;
+    readonly timestamp: number;
     readonly title: string;
+    readonly vibrate: ReadonlyArray<number>;
     close(): void;
     addEventListener<K extends keyof NotificationEventMap>(type: K, listener: (this: Notification, ev: NotificationEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
@@ -9745,7 +9980,9 @@ interface Notification extends EventTarget {
 declare var Notification: {
     prototype: Notification;
     new(title: string, options?: NotificationOptions): Notification;
-    requestPermission(callback?: NotificationPermissionCallback): Promise<NotificationPermission>;
+    readonly maxActions: number;
+    readonly permission: NotificationPermission;
+    requestPermission(deprecatedCallback?: NotificationPermissionCallback): Promise<NotificationPermission>;
 };
 
 interface OES_element_index_uint {
@@ -9910,12 +10147,9 @@ declare var PannerNode: {
 
 interface ParentNode {
     readonly childElementCount: number;
+    readonly children: HTMLCollection;
     readonly firstElementChild: Element | null;
     readonly lastElementChild: Element | null;
-}
-
-interface ParentNode {
-    readonly children: HTMLCollection;
     querySelector<K extends keyof HTMLElementTagNameMap>(selectors: K): HTMLElementTagNameMap[K] | null;
     querySelector<K extends keyof SVGElementTagNameMap>(selectors: K): SVGElementTagNameMap[K] | null;
     querySelector<E extends Element = Element>(selectors: string): E | null;
@@ -10305,27 +10539,13 @@ interface Position {
     readonly timestamp: number;
 }
 
-declare var Position: {
-    prototype: Position;
-    new(): Position;
-};
-
 interface PositionError {
     readonly code: number;
     readonly message: string;
-    toString(): string;
     readonly PERMISSION_DENIED: number;
     readonly POSITION_UNAVAILABLE: number;
     readonly TIMEOUT: number;
 }
-
-declare var PositionError: {
-    prototype: PositionError;
-    new(): PositionError;
-    readonly PERMISSION_DENIED: number;
-    readonly POSITION_UNAVAILABLE: number;
-    readonly TIMEOUT: number;
-};
 
 interface ProcessingInstruction extends CharacterData {
     readonly target: string;
@@ -10340,12 +10560,11 @@ interface ProgressEvent extends Event {
     readonly lengthComputable: boolean;
     readonly loaded: number;
     readonly total: number;
-    initProgressEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, lengthComputableArg: boolean, loadedArg: number, totalArg: number): void;
 }
 
 declare var ProgressEvent: {
     prototype: ProgressEvent;
-    new(typeArg: string, eventInitDict?: ProgressEventInit): ProgressEvent;
+    new(type: string, eventInitDict?: ProgressEventInit): ProgressEvent;
 };
 
 interface PromiseRejectionEvent extends Event {
@@ -10359,7 +10578,6 @@ interface PromiseRejectionEventInit extends EventInit {
 }
 
 interface PushManager {
-    readonly supportedContentEncodings: ReadonlyArray<string>;
     getSubscription(): Promise<PushSubscription | null>;
     permissionState(options?: PushSubscriptionOptionsInit): Promise<PushPermissionState>;
     subscribe(options?: PushSubscriptionOptionsInit): Promise<PushSubscription>;
@@ -10368,6 +10586,7 @@ interface PushManager {
 declare var PushManager: {
     prototype: PushManager;
     new(): PushManager;
+    readonly supportedContentEncodings: ReadonlyArray<string>;
 };
 
 interface PushSubscription {
@@ -10375,7 +10594,7 @@ interface PushSubscription {
     readonly expirationTime: number | null;
     readonly options: PushSubscriptionOptions;
     getKey(name: PushEncryptionKeyName): ArrayBuffer | null;
-    toJSON(): any;
+    toJSON(): PushSubscriptionJSON;
     unsubscribe(): Promise<boolean>;
 }
 
@@ -10394,30 +10613,108 @@ declare var PushSubscriptionOptions: {
     new(): PushSubscriptionOptions;
 };
 
+interface RTCCertificate {
+    readonly expires: number;
+    getFingerprints(): RTCDtlsFingerprint[];
+}
+
+declare var RTCCertificate: {
+    prototype: RTCCertificate;
+    new(): RTCCertificate;
+    getSupportedAlgorithms(): AlgorithmIdentifier[];
+};
+
+interface RTCDTMFSenderEventMap {
+    "tonechange": RTCDTMFToneChangeEvent;
+}
+
+interface RTCDTMFSender extends EventTarget {
+    readonly canInsertDTMF: boolean;
+    ontonechange: ((this: RTCDTMFSender, ev: RTCDTMFToneChangeEvent) => any) | null;
+    readonly toneBuffer: string;
+    insertDTMF(tones: string, duration?: number, interToneGap?: number): void;
+    addEventListener<K extends keyof RTCDTMFSenderEventMap>(type: K, listener: (this: RTCDTMFSender, ev: RTCDTMFSenderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof RTCDTMFSenderEventMap>(type: K, listener: (this: RTCDTMFSender, ev: RTCDTMFSenderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+
+declare var RTCDTMFSender: {
+    prototype: RTCDTMFSender;
+    new(): RTCDTMFSender;
+};
+
 interface RTCDTMFToneChangeEvent extends Event {
     readonly tone: string;
 }
 
 declare var RTCDTMFToneChangeEvent: {
     prototype: RTCDTMFToneChangeEvent;
-    new(typeArg: string, eventInitDict: RTCDTMFToneChangeEventInit): RTCDTMFToneChangeEvent;
+    new(type: string, eventInitDict: RTCDTMFToneChangeEventInit): RTCDTMFToneChangeEvent;
+};
+
+interface RTCDataChannelEventMap {
+    "bufferedamountlow": Event;
+    "close": Event;
+    "error": RTCErrorEvent;
+    "message": MessageEvent;
+    "open": Event;
+}
+
+interface RTCDataChannel extends EventTarget {
+    binaryType: string;
+    readonly bufferedAmount: number;
+    bufferedAmountLowThreshold: number;
+    readonly id: number | null;
+    readonly label: string;
+    readonly maxPacketLifeTime: number | null;
+    readonly maxRetransmits: number | null;
+    readonly negotiated: boolean;
+    onbufferedamountlow: ((this: RTCDataChannel, ev: Event) => any) | null;
+    onclose: ((this: RTCDataChannel, ev: Event) => any) | null;
+    onerror: ((this: RTCDataChannel, ev: RTCErrorEvent) => any) | null;
+    onmessage: ((this: RTCDataChannel, ev: MessageEvent) => any) | null;
+    onopen: ((this: RTCDataChannel, ev: Event) => any) | null;
+    readonly ordered: boolean;
+    readonly priority: RTCPriorityType;
+    readonly protocol: string;
+    readonly readyState: RTCDataChannelState;
+    close(): void;
+    send(data: string): void;
+    send(data: Blob): void;
+    send(data: ArrayBuffer): void;
+    send(data: ArrayBufferView): void;
+    addEventListener<K extends keyof RTCDataChannelEventMap>(type: K, listener: (this: RTCDataChannel, ev: RTCDataChannelEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof RTCDataChannelEventMap>(type: K, listener: (this: RTCDataChannel, ev: RTCDataChannelEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+
+declare var RTCDataChannel: {
+    prototype: RTCDataChannel;
+    new(): RTCDataChannel;
+};
+
+interface RTCDataChannelEvent extends Event {
+    readonly channel: RTCDataChannel;
+}
+
+declare var RTCDataChannelEvent: {
+    prototype: RTCDataChannelEvent;
+    new(type: string, eventInitDict: RTCDataChannelEventInit): RTCDataChannelEvent;
 };
 
 interface RTCDtlsTransportEventMap {
-    "dtlsstatechange": RTCDtlsTransportStateChangedEvent;
-    "error": Event;
+    "error": RTCErrorEvent;
+    "statechange": Event;
 }
 
-interface RTCDtlsTransport extends RTCStatsProvider {
-    ondtlsstatechange: ((this: RTCDtlsTransport, ev: RTCDtlsTransportStateChangedEvent) => any) | null;
-    onerror: ((this: RTCDtlsTransport, ev: Event) => any) | null;
+interface RTCDtlsTransport extends EventTarget {
+    onerror: ((this: RTCDtlsTransport, ev: RTCErrorEvent) => any) | null;
+    onstatechange: ((this: RTCDtlsTransport, ev: Event) => any) | null;
     readonly state: RTCDtlsTransportState;
     readonly transport: RTCIceTransport;
-    getLocalParameters(): RTCDtlsParameters;
     getRemoteCertificates(): ArrayBuffer[];
-    getRemoteParameters(): RTCDtlsParameters | null;
-    start(remoteParameters: RTCDtlsParameters): void;
-    stop(): void;
     addEventListener<K extends keyof RTCDtlsTransportEventMap>(type: K, listener: (this: RTCDtlsTransport, ev: RTCDtlsTransportEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof RTCDtlsTransportEventMap>(type: K, listener: (this: RTCDtlsTransport, ev: RTCDtlsTransportEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
@@ -10426,7 +10723,7 @@ interface RTCDtlsTransport extends RTCStatsProvider {
 
 declare var RTCDtlsTransport: {
     prototype: RTCDtlsTransport;
-    new(transport: RTCIceTransport): RTCDtlsTransport;
+    new(): RTCDtlsTransport;
 };
 
 interface RTCDtlsTransportStateChangedEvent extends Event {
@@ -10461,11 +10758,47 @@ declare var RTCDtmfSender: {
     new(sender: RTCRtpSender): RTCDtmfSender;
 };
 
+interface RTCError extends Error {
+    errorDetail: string;
+    httpRequestStatusCode: number;
+    message: string;
+    name: string;
+    receivedAlert: number | null;
+    sctpCauseCode: number;
+    sdpLineNumber: number;
+    sentAlert: number | null;
+}
+
+declare var RTCError: {
+    prototype: RTCError;
+    new(errorDetail?: string, message?: string): RTCError;
+};
+
+interface RTCErrorEvent extends Event {
+    readonly error: RTCError | null;
+}
+
+declare var RTCErrorEvent: {
+    prototype: RTCErrorEvent;
+    new(type: string, eventInitDict: RTCErrorEventInit): RTCErrorEvent;
+};
+
 interface RTCIceCandidate {
-    candidate: string | null;
-    sdpMLineIndex: number | null;
-    sdpMid: string | null;
-    toJSON(): any;
+    readonly candidate: string;
+    readonly component: RTCIceComponent | null;
+    readonly foundation: string | null;
+    readonly ip: string | null;
+    readonly port: number | null;
+    readonly priority: number | null;
+    readonly protocol: RTCIceProtocol | null;
+    readonly relatedAddress: string | null;
+    readonly relatedPort: number | null;
+    readonly sdpMLineIndex: number | null;
+    readonly sdpMid: string | null;
+    readonly tcpType: RTCIceTcpCandidateType | null;
+    readonly type: RTCIceCandidateType | null;
+    readonly usernameFragment: string | null;
+    toJSON(): RTCIceCandidateInit;
 }
 
 declare var RTCIceCandidate: {
@@ -10515,25 +10848,24 @@ declare var RTCIceGathererEvent: {
 };
 
 interface RTCIceTransportEventMap {
-    "candidatepairchange": RTCIceCandidatePairChangedEvent;
-    "icestatechange": RTCIceTransportStateChangedEvent;
+    "gatheringstatechange": Event;
+    "selectedcandidatepairchange": Event;
+    "statechange": Event;
 }
 
-interface RTCIceTransport extends RTCStatsProvider {
+interface RTCIceTransport extends EventTarget {
     readonly component: RTCIceComponent;
-    readonly iceGatherer: RTCIceGatherer | null;
-    oncandidatepairchange: ((this: RTCIceTransport, ev: RTCIceCandidatePairChangedEvent) => any) | null;
-    onicestatechange: ((this: RTCIceTransport, ev: RTCIceTransportStateChangedEvent) => any) | null;
+    readonly gatheringState: RTCIceGathererState;
+    ongatheringstatechange: ((this: RTCIceTransport, ev: Event) => any) | null;
+    onselectedcandidatepairchange: ((this: RTCIceTransport, ev: Event) => any) | null;
+    onstatechange: ((this: RTCIceTransport, ev: Event) => any) | null;
     readonly role: RTCIceRole;
     readonly state: RTCIceTransportState;
-    addRemoteCandidate(remoteCandidate: RTCIceCandidateDictionary | RTCIceCandidateComplete): void;
-    createAssociatedTransport(): RTCIceTransport;
-    getNominatedCandidatePair(): RTCIceCandidatePair | null;
-    getRemoteCandidates(): RTCIceCandidateDictionary[];
+    getLocalCandidates(): RTCIceCandidate[];
+    getLocalParameters(): RTCIceParameters | null;
+    getRemoteCandidates(): RTCIceCandidate[];
     getRemoteParameters(): RTCIceParameters | null;
-    setRemoteCandidates(remoteCandidates: RTCIceCandidateDictionary[]): void;
-    start(gatherer: RTCIceGatherer, remoteParameters: RTCIceParameters, role?: RTCIceRole): void;
-    stop(): void;
+    getSelectedCandidatePair(): RTCIceCandidatePair | null;
     addEventListener<K extends keyof RTCIceTransportEventMap>(type: K, listener: (this: RTCIceTransport, ev: RTCIceTransportEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof RTCIceTransportEventMap>(type: K, listener: (this: RTCIceTransport, ev: RTCIceTransportEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
@@ -10554,41 +10886,89 @@ declare var RTCIceTransportStateChangedEvent: {
     new(): RTCIceTransportStateChangedEvent;
 };
 
+interface RTCIdentityAssertion {
+    idp: string;
+    name: string;
+}
+
+declare var RTCIdentityAssertion: {
+    prototype: RTCIdentityAssertion;
+    new(idp: string, name: string): RTCIdentityAssertion;
+};
+
+interface RTCIdentityProviderGlobalScope {
+    readonly rtcIdentityProvider: RTCIdentityProviderRegistrar;
+}
+
+declare var RTCIdentityProviderGlobalScope: {
+    prototype: RTCIdentityProviderGlobalScope;
+    new(): RTCIdentityProviderGlobalScope;
+};
+
+interface RTCIdentityProviderRegistrar {
+    register(idp: RTCIdentityProvider): void;
+}
+
+declare var RTCIdentityProviderRegistrar: {
+    prototype: RTCIdentityProviderRegistrar;
+    new(): RTCIdentityProviderRegistrar;
+};
+
 interface RTCPeerConnectionEventMap {
-    "addstream": MediaStreamEvent;
+    "connectionstatechange": Event;
+    "datachannel": RTCDataChannelEvent;
     "icecandidate": RTCPeerConnectionIceEvent;
+    "icecandidateerror": RTCPeerConnectionIceErrorEvent;
     "iceconnectionstatechange": Event;
     "icegatheringstatechange": Event;
     "negotiationneeded": Event;
-    "removestream": MediaStreamEvent;
     "signalingstatechange": Event;
+    "statsended": RTCStatsEvent;
+    "track": RTCTrackEvent;
 }
 
 interface RTCPeerConnection extends EventTarget {
     readonly canTrickleIceCandidates: boolean | null;
+    readonly connectionState: RTCPeerConnectionState;
+    readonly currentLocalDescription: RTCSessionDescription | null;
+    readonly currentRemoteDescription: RTCSessionDescription | null;
     readonly iceConnectionState: RTCIceConnectionState;
     readonly iceGatheringState: RTCIceGatheringState;
+    readonly idpErrorInfo: string | null;
+    readonly idpLoginUrl: string | null;
     readonly localDescription: RTCSessionDescription | null;
-    onaddstream: ((this: RTCPeerConnection, ev: MediaStreamEvent) => any) | null;
+    onconnectionstatechange: ((this: RTCPeerConnection, ev: Event) => any) | null;
+    ondatachannel: ((this: RTCPeerConnection, ev: RTCDataChannelEvent) => any) | null;
     onicecandidate: ((this: RTCPeerConnection, ev: RTCPeerConnectionIceEvent) => any) | null;
+    onicecandidateerror: ((this: RTCPeerConnection, ev: RTCPeerConnectionIceErrorEvent) => any) | null;
     oniceconnectionstatechange: ((this: RTCPeerConnection, ev: Event) => any) | null;
     onicegatheringstatechange: ((this: RTCPeerConnection, ev: Event) => any) | null;
     onnegotiationneeded: ((this: RTCPeerConnection, ev: Event) => any) | null;
-    onremovestream: ((this: RTCPeerConnection, ev: MediaStreamEvent) => any) | null;
     onsignalingstatechange: ((this: RTCPeerConnection, ev: Event) => any) | null;
+    onstatsended: ((this: RTCPeerConnection, ev: RTCStatsEvent) => any) | null;
+    ontrack: ((this: RTCPeerConnection, ev: RTCTrackEvent) => any) | null;
+    readonly peerIdentity: Promise<RTCIdentityAssertion>;
+    readonly pendingLocalDescription: RTCSessionDescription | null;
+    readonly pendingRemoteDescription: RTCSessionDescription | null;
     readonly remoteDescription: RTCSessionDescription | null;
+    readonly sctp: RTCSctpTransport | null;
     readonly signalingState: RTCSignalingState;
     addIceCandidate(candidate: RTCIceCandidateInit | RTCIceCandidate): Promise<void>;
-    addStream(stream: MediaStream): void;
+    addTrack(track: MediaStreamTrack, ...streams: MediaStream[]): RTCRtpSender;
+    addTransceiver(trackOrKind: MediaStreamTrack | string, init?: RTCRtpTransceiverInit): RTCRtpTransceiver;
     close(): void;
     createAnswer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit>;
+    createDataChannel(label: string, dataChannelDict?: RTCDataChannelInit): RTCDataChannel;
     createOffer(options?: RTCOfferOptions): Promise<RTCSessionDescriptionInit>;
     getConfiguration(): RTCConfiguration;
-    getLocalStreams(): MediaStream[];
-    getRemoteStreams(): MediaStream[];
-    getStats(selector: MediaStreamTrack | null, successCallback?: RTCStatsCallback, failureCallback?: RTCPeerConnectionErrorCallback): Promise<RTCStatsReport>;
-    getStreamById(streamId: string): MediaStream | null;
-    removeStream(stream: MediaStream): void;
+    getIdentityAssertion(): Promise<string>;
+    getReceivers(): RTCRtpReceiver[];
+    getSenders(): RTCRtpSender[];
+    getStats(selector?: MediaStreamTrack | null): Promise<RTCStatsReport>;
+    getTransceivers(): RTCRtpTransceiver[];
+    removeTrack(sender: RTCRtpSender): void;
+    setConfiguration(configuration: RTCConfiguration): void;
+    setIdentityProvider(provider: string, options?: RTCIdentityProviderOptions): void;
     setLocalDescription(description: RTCSessionDescriptionInit): Promise<void>;
     setRemoteDescription(description: RTCSessionDescriptionInit): Promise<void>;
     addEventListener<K extends keyof RTCPeerConnectionEventMap>(type: K, listener: (this: RTCPeerConnection, ev: RTCPeerConnectionEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
@@ -10599,84 +10979,111 @@ interface RTCPeerConnection extends EventTarget {
 
 declare var RTCPeerConnection: {
     prototype: RTCPeerConnection;
-    new(configuration: RTCConfiguration): RTCPeerConnection;
+    new(configuration?: RTCConfiguration): RTCPeerConnection;
+    generateCertificate(keygenAlgorithm: AlgorithmIdentifier): Promise<RTCCertificate>;
+    getDefaultIceServers(): RTCIceServer[];
+};
+
+interface RTCPeerConnectionIceErrorEvent extends Event {
+    readonly errorCode: number;
+    readonly errorText: string;
+    readonly hostCandidate: string;
+    readonly url: string;
+}
+
+declare var RTCPeerConnectionIceErrorEvent: {
+    prototype: RTCPeerConnectionIceErrorEvent;
+    new(type: string, eventInitDict: RTCPeerConnectionIceErrorEventInit): RTCPeerConnectionIceErrorEvent;
 };
 
 interface RTCPeerConnectionIceEvent extends Event {
-    readonly candidate: RTCIceCandidate;
+    readonly candidate: RTCIceCandidate | null;
+    readonly url: string | null;
 }
 
 declare var RTCPeerConnectionIceEvent: {
     prototype: RTCPeerConnectionIceEvent;
-    new(type: string, eventInitDict: RTCPeerConnectionIceEventInit): RTCPeerConnectionIceEvent;
+    new(type: string, eventInitDict?: RTCPeerConnectionIceEventInit): RTCPeerConnectionIceEvent;
 };
 
-interface RTCRtpReceiverEventMap {
-    "error": Event;
-    "msdecodercapacitychange": Event;
-    "msdsh": Event;
-}
-
-interface RTCRtpReceiver extends RTCStatsProvider {
-    onerror: ((this: RTCRtpReceiver, ev: Event) => any) | null;
-    onmsdecodercapacitychange: ((this: RTCRtpReceiver, ev: Event) => any) | null;
-    onmsdsh: ((this: RTCRtpReceiver, ev: Event) => any) | null;
-    readonly rtcpTransport: RTCDtlsTransport;
-    readonly track: MediaStreamTrack | null;
-    readonly transport: RTCDtlsTransport | RTCSrtpSdesTransport;
+interface RTCRtpReceiver {
+    readonly rtcpTransport: RTCDtlsTransport | null;
+    readonly track: MediaStreamTrack;
+    readonly transport: RTCDtlsTransport | null;
     getContributingSources(): RTCRtpContributingSource[];
-    receive(parameters: RTCRtpParameters): void;
-    requestSendCSRC(csrc: number): void;
-    setTransport(transport: RTCDtlsTransport | RTCSrtpSdesTransport, rtcpTransport?: RTCDtlsTransport): void;
-    stop(): void;
-    addEventListener<K extends keyof RTCRtpReceiverEventMap>(type: K, listener: (this: RTCRtpReceiver, ev: RTCRtpReceiverEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof RTCRtpReceiverEventMap>(type: K, listener: (this: RTCRtpReceiver, ev: RTCRtpReceiverEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    getParameters(): RTCRtpParameters;
+    getStats(): Promise<RTCStatsReport>;
+    getSynchronizationSources(): RTCRtpSynchronizationSource[];
 }
 
 declare var RTCRtpReceiver: {
     prototype: RTCRtpReceiver;
-    new(transport: RTCDtlsTransport | RTCSrtpSdesTransport, kind: string, rtcpTransport?: RTCDtlsTransport): RTCRtpReceiver;
-    getCapabilities(kind?: string): RTCRtpCapabilities;
+    new(): RTCRtpReceiver;
+    getCapabilities(kind: string): RTCRtpCapabilities;
 };
 
-interface RTCRtpSenderEventMap {
-    "error": Event;
-    "ssrcconflict": RTCSsrcConflictEvent;
-}
-
-interface RTCRtpSender extends RTCStatsProvider {
-    onerror: ((this: RTCRtpSender, ev: Event) => any) | null;
-    onssrcconflict: ((this: RTCRtpSender, ev: RTCSsrcConflictEvent) => any) | null;
-    readonly rtcpTransport: RTCDtlsTransport;
-    readonly track: MediaStreamTrack;
-    readonly transport: RTCDtlsTransport | RTCSrtpSdesTransport;
-    send(parameters: RTCRtpParameters): void;
-    setTrack(track: MediaStreamTrack): void;
-    setTransport(transport: RTCDtlsTransport | RTCSrtpSdesTransport, rtcpTransport?: RTCDtlsTransport): void;
-    stop(): void;
-    addEventListener<K extends keyof RTCRtpSenderEventMap>(type: K, listener: (this: RTCRtpSender, ev: RTCRtpSenderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof RTCRtpSenderEventMap>(type: K, listener: (this: RTCRtpSender, ev: RTCRtpSenderEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+interface RTCRtpSender {
+    readonly dtmf: RTCDTMFSender | null;
+    readonly rtcpTransport: RTCDtlsTransport | null;
+    readonly track: MediaStreamTrack | null;
+    readonly transport: RTCDtlsTransport | null;
+    getParameters(): RTCRtpSendParameters;
+    getStats(): Promise<RTCStatsReport>;
+    replaceTrack(withTrack: MediaStreamTrack | null): Promise<void>;
+    setParameters(parameters: RTCRtpSendParameters): Promise<void>;
 }
 
 declare var RTCRtpSender: {
     prototype: RTCRtpSender;
-    new(track: MediaStreamTrack, transport: RTCDtlsTransport | RTCSrtpSdesTransport, rtcpTransport?: RTCDtlsTransport): RTCRtpSender;
-    getCapabilities(kind?: string): RTCRtpCapabilities;
+    new(): RTCRtpSender;
+    getCapabilities(kind: string): RTCRtpCapabilities;
+};
+
+interface RTCRtpTransceiver {
+    readonly currentDirection: RTCRtpTransceiverDirection | null;
+    direction: RTCRtpTransceiverDirection;
+    readonly mid: string | null;
+    readonly receiver: RTCRtpReceiver;
+    readonly sender: RTCRtpSender;
+    readonly stopped: boolean;
+    setCodecPreferences(codecs: RTCRtpCodecCapability[]): void;
+    stop(): void;
+}
+
+declare var RTCRtpTransceiver: {
+    prototype: RTCRtpTransceiver;
+    new(): RTCRtpTransceiver;
+};
+
+interface RTCSctpTransportEventMap {
+    "statechange": Event;
+}
+
+interface RTCSctpTransport {
+    readonly maxMessageSize: number;
+    onstatechange: ((this: RTCSctpTransport, ev: Event) => any) | null;
+    readonly state: RTCSctpTransportState;
+    readonly transport: RTCDtlsTransport;
+    addEventListener<K extends keyof RTCSctpTransportEventMap>(type: K, listener: (this: RTCSctpTransport, ev: RTCSctpTransportEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof RTCSctpTransportEventMap>(type: K, listener: (this: RTCSctpTransport, ev: RTCSctpTransportEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+}
+
+declare var RTCSctpTransport: {
+    prototype: RTCSctpTransport;
+    new(): RTCSctpTransport;
 };
 
 interface RTCSessionDescription {
-    sdp: string | null;
-    type: RTCSdpType | null;
+    readonly sdp: string;
+    readonly type: RTCSdpType;
     toJSON(): any;
 }
 
 declare var RTCSessionDescription: {
     prototype: RTCSessionDescription;
-    new(descriptionInitDict?: RTCSessionDescriptionInit): RTCSessionDescription;
+    new(descriptionInitDict: RTCSessionDescriptionInit): RTCSessionDescription;
 };
 
 interface RTCSrtpSdesTransportEventMap {
@@ -10707,6 +11114,15 @@ declare var RTCSsrcConflictEvent: {
     new(): RTCSsrcConflictEvent;
 };
 
+interface RTCStatsEvent extends Event {
+    readonly report: RTCStatsReport;
+}
+
+declare var RTCStatsEvent: {
+    prototype: RTCStatsEvent;
+    new(type: string, eventInitDict: RTCStatsEventInit): RTCStatsEvent;
+};
+
 interface RTCStatsProvider extends EventTarget {
     getStats(): Promise<RTCStatsReport>;
     msGetStats(): Promise<RTCStatsReport>;
@@ -10715,6 +11131,26 @@ interface RTCStatsProvider extends EventTarget {
 declare var RTCStatsProvider: {
     prototype: RTCStatsProvider;
     new(): RTCStatsProvider;
+};
+
+interface RTCStatsReport {
+}
+
+declare var RTCStatsReport: {
+    prototype: RTCStatsReport;
+    new(): RTCStatsReport;
+};
+
+interface RTCTrackEvent extends Event {
+    readonly receiver: RTCRtpReceiver;
+    readonly streams: ReadonlyArray<MediaStream>;
+    readonly track: MediaStreamTrack;
+    readonly transceiver: RTCRtpTransceiver;
+}
+
+declare var RTCTrackEvent: {
+    prototype: RTCTrackEvent;
+    new(type: string, eventInitDict: RTCTrackEventInit): RTCTrackEvent;
 };
 
 interface RandomSource {
@@ -13004,18 +13440,18 @@ declare var ServiceWorker: {
 
 interface ServiceWorkerContainerEventMap {
     "controllerchange": Event;
-    "message": ServiceWorkerMessageEvent;
+    "message": MessageEvent;
     "messageerror": MessageEvent;
 }
 
 interface ServiceWorkerContainer extends EventTarget {
     readonly controller: ServiceWorker | null;
     oncontrollerchange: ((this: ServiceWorkerContainer, ev: Event) => any) | null;
-    onmessage: ((this: ServiceWorkerContainer, ev: ServiceWorkerMessageEvent) => any) | null;
+    onmessage: ((this: ServiceWorkerContainer, ev: MessageEvent) => any) | null;
     onmessageerror: ((this: ServiceWorkerContainer, ev: MessageEvent) => any) | null;
     readonly ready: Promise<ServiceWorkerRegistration>;
     getRegistration(clientURL?: string): Promise<ServiceWorkerRegistration | undefined>;
-    getRegistrations(): Promise<ServiceWorkerRegistration[]>;
+    getRegistrations(): Promise<ReadonlyArray<ServiceWorkerRegistration>>;
     register(scriptURL: string, options?: RegistrationOptions): Promise<ServiceWorkerRegistration>;
     startMessages(): void;
     addEventListener<K extends keyof ServiceWorkerContainerEventMap>(type: K, listener: (this: ServiceWorkerContainer, ev: ServiceWorkerContainerEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
@@ -13049,10 +13485,12 @@ interface ServiceWorkerRegistrationEventMap {
 interface ServiceWorkerRegistration extends EventTarget {
     readonly active: ServiceWorker | null;
     readonly installing: ServiceWorker | null;
+    readonly navigationPreload: NavigationPreloadManager;
     onupdatefound: ((this: ServiceWorkerRegistration, ev: Event) => any) | null;
     readonly pushManager: PushManager;
     readonly scope: string;
     readonly sync: SyncManager;
+    readonly updateViaCache: ServiceWorkerUpdateViaCache;
     readonly waiting: ServiceWorker | null;
     getNotifications(filter?: GetNotificationOptions): Promise<Notification[]>;
     showNotification(title: string, options?: NotificationOptions): Promise<void>;
@@ -15464,8 +15902,7 @@ interface XMLHttpRequestEventMap extends XMLHttpRequestEventTargetEventMap {
     "readystatechange": Event;
 }
 
-interface XMLHttpRequest extends EventTarget, XMLHttpRequestEventTarget {
-    msCaching: string;
+interface XMLHttpRequest extends XMLHttpRequestEventTarget {
     onreadystatechange: ((this: XMLHttpRequest, ev: Event) => any) | null;
     readonly readyState: number;
     readonly response: any;
@@ -15480,12 +15917,12 @@ interface XMLHttpRequest extends EventTarget, XMLHttpRequestEventTarget {
     withCredentials: boolean;
     abort(): void;
     getAllResponseHeaders(): string;
-    getResponseHeader(header: string): string | null;
-    msCachingEnabled(): boolean;
-    open(method: string, url: string, async?: boolean, user?: string | null, password?: string | null): void;
+    getResponseHeader(name: string): string | null;
+    open(method: string, url: string): void;
+    open(method: string, url: string, async: boolean, username?: string | null, password?: string | null): void;
     overrideMimeType(mime: string): void;
-    send(data?: any): void;
-    setRequestHeader(header: string, value: string): void;
+    send(body?: Document | BodyInit): void;
+    setRequestHeader(name: string, value: string): void;
     readonly DONE: number;
     readonly HEADERS_RECEIVED: number;
     readonly LOADING: number;
@@ -15508,21 +15945,21 @@ declare var XMLHttpRequest: {
 };
 
 interface XMLHttpRequestEventTargetEventMap {
-    "abort": Event;
-    "error": ErrorEvent;
-    "load": Event;
+    "abort": ProgressEvent;
+    "error": ProgressEvent;
+    "load": ProgressEvent;
     "loadend": ProgressEvent;
-    "loadstart": Event;
+    "loadstart": ProgressEvent;
     "progress": ProgressEvent;
     "timeout": ProgressEvent;
 }
 
-interface XMLHttpRequestEventTarget {
-    onabort: ((this: XMLHttpRequest, ev: Event) => any) | null;
-    onerror: ((this: XMLHttpRequest, ev: ErrorEvent) => any) | null;
-    onload: ((this: XMLHttpRequest, ev: Event) => any) | null;
+interface XMLHttpRequestEventTarget extends EventTarget {
+    onabort: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
+    onerror: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
+    onload: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     onloadend: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
-    onloadstart: ((this: XMLHttpRequest, ev: Event) => any) | null;
+    onloadstart: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     onprogress: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     ontimeout: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null;
     addEventListener<K extends keyof XMLHttpRequestEventTargetEventMap>(type: K, listener: (this: XMLHttpRequestEventTarget, ev: XMLHttpRequestEventTargetEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
@@ -15531,7 +15968,12 @@ interface XMLHttpRequestEventTarget {
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
 }
 
-interface XMLHttpRequestUpload extends EventTarget, XMLHttpRequestEventTarget {
+declare var XMLHttpRequestEventTarget: {
+    prototype: XMLHttpRequestEventTarget;
+    new(): XMLHttpRequestEventTarget;
+};
+
+interface XMLHttpRequestUpload extends XMLHttpRequestEventTarget {
     addEventListener<K extends keyof XMLHttpRequestEventTargetEventMap>(type: K, listener: (this: XMLHttpRequestUpload, ev: XMLHttpRequestEventTargetEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof XMLHttpRequestEventTargetEventMap>(type: K, listener: (this: XMLHttpRequestUpload, ev: XMLHttpRequestEventTargetEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
@@ -15676,6 +16118,10 @@ interface FunctionStringCallback {
     (data: string): void;
 }
 
+interface GenerateAssertionCallback {
+    (contents: string, origin: string, options: RTCIdentityProviderOptions): Promise<RTCIdentityAssertionResult>;
+}
+
 interface IntersectionObserverCallback {
     (entries: IntersectionObserverEntry[], observer: IntersectionObserver): void;
 }
@@ -15713,19 +16159,23 @@ interface PositionCallback {
 }
 
 interface PositionErrorCallback {
-    (error: PositionError): void;
+    (positionError: PositionError): void;
 }
 
 interface RTCPeerConnectionErrorCallback {
-    (error: DOMError): void;
+    (error: DOMException): void;
 }
 
 interface RTCSessionDescriptionCallback {
-    (sdp: RTCSessionDescription): void;
+    (description: RTCSessionDescriptionInit): void;
 }
 
 interface RTCStatsCallback {
     (report: RTCStatsReport): void;
+}
+
+interface ValidateAssertionCallback {
+    (assertion: string, origin: string): Promise<RTCIdentityValidationResult>;
 }
 
 interface VoidFunction {
@@ -16168,16 +16618,18 @@ type BodyInit = Blob | BufferSource | FormData | URLSearchParams | ReadableStrea
 type RequestInfo = Request | string;
 type DOMHighResTimeStamp = number;
 type PerformanceEntryList = PerformanceEntry[];
+type PushMessageDataInit = BufferSource | string;
+type VibratePattern = number | number[];
 type BufferSource = ArrayBufferView | ArrayBuffer;
 type DOMTimeStamp = number;
+type FormDataEntryValue = File | string;
 type ScrollBehavior = "auto" | "instant" | "smooth";
 type ScrollLogicalPosition = "start" | "center" | "end" | "nearest";
 type MouseWheelEvent = WheelEvent;
 type ScrollRestoration = "auto" | "manual";
-type FormDataEntryValue = string | File;
 type InsertPosition = "beforebegin" | "afterbegin" | "beforeend" | "afterend";
 type OrientationLockType = "any" | "natural" | "portrait" | "landscape" | "portrait-primary" | "portrait-secondary" | "landscape-primary"| "landscape-secondary";
-type IDBValidKey = number | string | Date | IDBArrayKey;
+type IDBValidKey = number | string | Date | BufferSource | IDBArrayKey;
 type AlgorithmIdentifier = string | Algorithm;
 type MutationRecordType = "attributes" | "characterData" | "childList";
 type AAGUID = string;
@@ -16209,7 +16661,8 @@ type RTCIceGatherCandidate = RTCIceCandidateDictionary | RTCIceCandidateComplete
 type RTCTransport = RTCDtlsTransport | RTCSrtpSdesTransport;
 type USVString = string;
 type payloadtype = number;
-type ClientTypes = "window" | "worker" | "sharedworker" | "all";
+type MessageEventSource = Window | MessagePort | ServiceWorker;
+type AnimationPlayState = "idle" | "running" | "paused" | "finished";
 type AppendMode = "segments" | "sequence";
 type AudioContextLatencyCategory = "balanced" | "interactive" | "playback";
 type AudioContextState = "suspended" | "running" | "closed";
@@ -16219,11 +16672,14 @@ type CanPlayTypeResult = "" | "maybe" | "probably";
 type CanvasFillRule = "nonzero" | "evenodd";
 type ChannelCountMode = "max" | "clamped-max" | "explicit";
 type ChannelInterpretation = "speakers" | "discrete";
+type ClientTypes = "window" | "worker" | "sharedworker" | "all";
+type CompositeOperation = "replace" | "add" | "accumulate";
 type DisplayCaptureSurfaceType = "monitor" | "window" | "application" | "browser";
 type DistanceModelType = "linear" | "inverse" | "exponential";
 type DocumentReadyState = "loading" | "interactive" | "complete";
 type EndOfStreamError = "network" | "decode";
 type ExpandGranularity = "character" | "word" | "sentence" | "textedit";
+type FillMode = "none" | "forwards" | "backwards" | "both" | "auto";
 type GamepadHand = "" | "left" | "right";
 type GamepadHapticActuatorType = "vibration";
 type GamepadInputEmulationType = "mouse" | "keyboard" | "gamepad";
@@ -16231,6 +16687,7 @@ type GamepadMappingType = "" | "standard";
 type IDBCursorDirection = "next" | "nextunique" | "prev" | "prevunique";
 type IDBRequestReadyState = "pending" | "done";
 type IDBTransactionMode = "readonly" | "readwrite" | "versionchange";
+type IterationCompositeOperation = "replace" | "accumulate";
 type KeyFormat = "raw" | "spki" | "pkcs8" | "jwk";
 type KeyType = "public" | "private" | "secret";
 type KeyUsage = "encrypt" | "decrypt" | "sign" | "verify" | "deriveKey" | "deriveBits" | "wrapKey" | "unwrapKey";
@@ -16257,24 +16714,34 @@ type OverSampleType = "none" | "2x" | "4x";
 type PanningModelType = "equalpower" | "HRTF";
 type PaymentComplete = "success" | "fail" | "unknown";
 type PaymentShippingType = "shipping" | "delivery" | "pickup";
+type PlaybackDirection = "normal" | "reverse" | "alternate" | "alternate-reverse";
 type PushEncryptionKeyName = "p256dh" | "auth";
-type PushPermissionState = "granted" | "denied" | "prompt";
+type PushPermissionState = "denied" | "granted" | "prompt";
 type RTCBundlePolicy = "balanced" | "max-compat" | "max-bundle";
+type RTCDataChannelState = "connecting" | "open" | "closing" | "closed";
 type RTCDegradationPreference = "maintain-framerate" | "maintain-resolution" | "balanced";
 type RTCDtlsRole = "auto" | "client" | "server";
-type RTCDtlsTransportState = "new" | "connecting" | "connected" | "closed";
+type RTCDtlsTransportState = "new" | "connecting" | "connected" | "closed" | "failed";
+type RTCDtxStatus = "disabled" | "enabled";
+type RTCErrorDetailType = "data-channel-failure" | "dtls-failure" | "fingerprint-failure" | "idp-bad-script-failure" | "idp-execution-failure" | "idp-load-failure" | "idp-need-login" | "idp-timeout" | "idp-tls-failure" | "idp-token-expired" | "idp-token-invalid" | "sctp-failure" | "sdp-syntax-error" | "hardware-encoder-not-available" | "hardware-encoder-error";
 type RTCIceCandidateType = "host" | "srflx" | "prflx" | "relay";
-type RTCIceComponent = "RTP" | "RTCP";
-type RTCIceConnectionState = "new" | "checking" | "connected" | "completed" | "failed" | "disconnected" | "closed";
+type RTCIceComponent = "rtp" | "rtcp";
+type RTCIceConnectionState = "new" | "checking" | "connected" | "completed" | "disconnected" | "failed" | "closed";
+type RTCIceCredentialType = "password" | "oauth";
 type RTCIceGatherPolicy = "all" | "nohost" | "relay";
 type RTCIceGathererState = "new" | "gathering" | "complete";
 type RTCIceGatheringState = "new" | "gathering" | "complete";
 type RTCIceProtocol = "udp" | "tcp";
 type RTCIceRole = "controlling" | "controlled";
 type RTCIceTcpCandidateType = "active" | "passive" | "so";
-type RTCIceTransportPolicy = "none" | "relay" | "all";
-type RTCIceTransportState = "new" | "checking" | "connected" | "completed" | "disconnected" | "closed";
-type RTCSdpType = "offer" | "pranswer" | "answer";
+type RTCIceTransportPolicy = "relay" | "all";
+type RTCIceTransportState = "new" | "checking" | "connected" | "completed" | "disconnected" | "failed" | "closed";
+type RTCPeerConnectionState = "new" | "connecting" | "connected" | "disconnected" | "failed" | "closed";
+type RTCPriorityType = "very-low" | "low" | "medium" | "high";
+type RTCRtcpMuxPolicy = "negotiate" | "require";
+type RTCRtpTransceiverDirection = "sendrecv" | "sendonly" | "recvonly" | "inactive";
+type RTCSctpTransportState = "new" | "connecting" | "connected" | "closed";
+type RTCSdpType = "offer" | "pranswer" | "answer" | "rollback";
 type RTCSignalingState = "stable" | "have-local-offer" | "have-remote-offer" | "have-local-pranswer" | "have-remote-pranswer" | "closed";
 type RTCStatsIceCandidatePairState = "frozen" | "waiting" | "inprogress" | "failed" | "succeeded" | "cancelled";
 type RTCStatsIceCandidateType = "host" | "serverreflexive" | "peerreflexive" | "relayed";
@@ -16289,6 +16756,7 @@ type RequestRedirect = "follow" | "error" | "manual";
 type ResponseType = "basic" | "cors" | "default" | "error" | "opaque" | "opaqueredirect";
 type ScopedCredentialType = "ScopedCred";
 type ServiceWorkerState = "installing" | "installed" | "activating" | "activated" | "redundant";
+type ServiceWorkerUpdateViaCache = "imports" | "all" | "none";
 type TextTrackKind = "subtitles" | "captions" | "descriptions" | "chapters" | "metadata";
 type TextTrackMode = "disabled" | "hidden" | "showing";
 type TouchType = "direct" | "stylus";
@@ -16297,4 +16765,5 @@ type VRDisplayEventReason = "mounted" | "navigation" | "requested" | "unmounted"
 type VREye = "left" | "right";
 type VideoFacingModeEnum = "user" | "environment" | "left" | "right";
 type VisibilityState = "hidden" | "visible" | "prerender" | "unloaded";
+type WorkerType = "classic" | "module";
 type XMLHttpRequestResponseType = "" | "arraybuffer" | "blob" | "document" | "json" | "text";
