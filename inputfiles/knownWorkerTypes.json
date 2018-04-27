@@ -135,5 +135,18 @@
     "IDBArrayKey",
     "IDBVersionChangeEventInit",
     "BufferSource",
-    "NavigatorLanguage"
+    "NavigatorLanguage",
+    "CanvasState",
+    "CanvasTransform",
+    "CanvasCompositing",
+    "CanvasImageSmoothing",
+    "CanvasFillStrokeStyles",
+    "CanvasShadowStyles",
+    "CanvasFilters",
+    "CanvasRect",
+    "CanvasDrawPath",
+    "CanvasDrawImage",
+    "CanvasImageData",
+    "CanvasPathDrawingStyles",
+    "CanvasPath"
 ]
