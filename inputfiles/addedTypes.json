@@ -49,13 +49,13 @@
                         },
                         "arc": {
                             "override-signatures": [
-                                "arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean = false): void"
+                                "arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void"
                             ],
                             "name": "arc"
                         },
                         "ellipse": {
                             "override-signatures": [
-                                "ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise?: boolean = false): void"
+                                "ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void"
                             ],
                             "name": "ellipse"
                         }
@@ -196,7 +196,7 @@
                         },
                         "measureText": {
                             "override-signatures": [
-                                "measureText(string text): TextMetrics"
+                                "measureText(text: string): TextMetrics"
                             ],
                             "name": "measureText"
                         }
@@ -236,8 +236,8 @@
                         },
                         "fill": {
                             "override-signatures": [
-                                "fill(fillRule?: CanvasFillRule = \"nonzero\"): void",
-                                "fill(path: Path2D, fillRule?: CanvasFillRule = \"nonzero\"): void"
+                                "fill(fillRule?: CanvasFillRule): void",
+                                "fill(path: Path2D, fillRule?: CanvasFillRule): void"
                             ],
                             "name": "fill"
                         },
@@ -250,8 +250,8 @@
                         },
                         "clip": {
                             "override-signatures": [
-                                "clip(fillRule?: CanvasFillRule = \"nonzero\"): void",
-                                "clip(path: Path2D, fillRule?: CanvasFillRule = \"nonzero\"): void"
+                                "clip(fillRule?: CanvasFillRule): void",
+                                "clip(path: Path2D, fillRule?: CanvasFillRule): void"
                             ],
                             "name": "clip"
                         },
@@ -263,8 +263,8 @@
                         },
                         "isPointInPath": {
                             "override-signatures": [
-                                "isPointInPath(x: number, y: number, fillRule?: CanvasFillRule = \"nonzero\"): boolean",
-                                "isPointInPath(path: Path2D, x: number, y: number, fillRule?: CanvasFillRule = \"nonzero\"): boolean"
+                                "isPointInPath(x: number, y: number, fillRule?: CanvasFillRule): boolean",
+                                "isPointInPath(path: Path2D, x: number, y: number, fillRule?: CanvasFillRule): boolean"
                             ],
                             "name": "isPointInPath"
                         },
@@ -323,7 +323,7 @@
                             "override-type": "number"
                         },
                         "shadowOffsetY": {
-                            "name": "shadowOffsetX",
+                            "name": "shadowOffsetY",
                             "override-type": "number"
                         },
                         "shadowBlur": {
@@ -751,7 +751,7 @@
                     "method": {
                         "getContext": {
                             "override-signatures": [
-                                "getContext(contextId: OffscreenRenderingContextId, options: any = null): OffscreenRenderingContext"
+                                "getContext(contextId: OffscreenRenderingContextId, options?: any): OffscreenRenderingContext"
                             ],
                             "name": "getContext"
                         },
@@ -1894,6 +1894,7 @@
             },
             "CanvasPattern": {
                 "name": "CanvasPattern",
+                "exposed": "Window Worker",
                 "methods": {
                     "method": {
                         "setTransform": {

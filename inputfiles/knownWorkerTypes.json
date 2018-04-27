@@ -148,5 +148,14 @@
     "CanvasDrawImage",
     "CanvasImageData",
     "CanvasPathDrawingStyles",
-    "CanvasPath"
+    "CanvasPath",
+    "CanvasImageSource",
+    "CanvasFillRule",
+    "CanvasPattern",
+    "ImageSmoothingQuality",
+    "ImageEncodeOptions",
+    "OffscreenRenderingContextId",
+    "OffscreenRenderingContext",
+    "CanvasLineCap",
+    "CanvasLineJoin"
 ]
