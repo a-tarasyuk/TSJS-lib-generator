@@ -35,6 +35,73 @@
                     }
                 },
                 "no-interface-object": "1"
+            },
+            "WindowOrWorkerGlobalScope": {
+                "name": "WindowOrWorkerGlobalScope",
+                "exposed": "Window WorkerGlobalScope",
+                "properties": {
+                    "property": {
+                        "origin": {
+                            "override-type": "string",
+                            "read-only": 1,
+                            "name": "origin"
+                        }
+                    },
+                    "methods": {
+                        "method": {
+                            "btoa": {
+                                "override-signatures": [
+                                    "btoa(data: string): string"
+                                ],
+                                "exposed": "Window WorkerGlobalScope",
+                                "name": "btoa"
+                            },
+                            "atob": {
+                                "override-signatures": [
+                                    "atob(data: string): string"
+                                ],
+                                "exposed": "Window WorkerGlobalScope",
+                                "name": "atob"
+                            },
+                            "createImageBitmap": {
+                                "override-signatures": [
+                                    "createImageBitmap(image: ImageBitmapSource, options?: ImageBitmapOptions): Promise<ImageBitmap>",
+                                    "createImageBitmap(image: ImageBitmapSource, sx: number, sy: number, sw: number, sh: number, options?: ImageBitmapOptions): Promise<ImageBitmap>"
+                                ],
+                                "exposed": "Window WorkerGlobalScope",
+                                "name": "createImageBitmap"
+                            },
+                            "clearTimeout": {
+                                "override-signatures": [
+                                    "clearTimeout(handle?: number): void"
+                                ],
+                                "exposed": "Window WorkerGlobalScope",
+                                "name": "clearTimeout"
+                            },
+                            "setTimeout": {
+                                "override-signatures": [
+                                    "setTimeout(TimerHandler handler, timeout: number = 0, ...arguments: any[]): number"
+                                ],
+                                "exposed": "Window WorkerGlobalScope",
+                                "name": "setTimeout"
+                            },
+                            "clearInterval": {
+                                "override-signatures": [
+                                    "clearInterval(handle?: number): void"
+                                ],
+                                "exposed": "Window WorkerGlobalScope",
+                                "name": "clearInterval"
+                            },
+                            "setInterval": {
+                                "override-signatures": [
+                                    "setInterval(TimerHandler handler, timeout: number = 0, ...arguments: any[]): number"
+                                ],
+                                "exposed": "Window WorkerGlobalScope",
+                                "name": "setInterval"
+                            }
+                        }
+                    }
+                }
             }
         }
     },
@@ -61,11 +128,101 @@
                     "sharedworker",
                     "all"
                 ]
+            },
+            "OffscreenRenderingContextId": {
+                "name": "OffscreenRenderingContextId",
+                "value": [
+                    "2d",
+                    "webgl"
+                ]
             }
         }
     },
     "interfaces": {
         "interface": {
+            "OffscreenCanvasRenderingContext2D": {
+                "name": "OffscreenCanvasRenderingContext2D",
+                "exposed": "Window Worker",
+                "properties": {
+                    "property": {
+                        "canvas": {
+                            "override-type": "OffscreenCanvas",
+                            "name": "canvas"
+                        }
+                    }
+                },
+                "methods": {
+                    "method": {
+                        "commit": {
+                            "override-signatures": [
+                                "commit(): void"
+                            ],
+                            "name": "commit"
+                        }
+                    }
+                },
+                "implements": [
+                    "CanvasState",
+                    "CanvasTransform",
+                    "CanvasCompositing",
+                    "CanvasImageSmoothing",
+                    "CanvasFillStrokeStyles",
+                    "CanvasShadowStyles",
+                    "CanvasFilters",
+                    "CanvasFilters",
+                    "CanvasRect",
+                    "CanvasDrawPath",
+                    "CanvasDrawImage",
+                    "CanvasImageData",
+                    "CanvasPathDrawingStyles",
+                    "CanvasPath"
+                ]
+            },
+            "OffscreenCanvas": {
+                "name": "OffscreenCanvas",
+                "exposed": "Window Worker",
+                "extends": "EventTarget",
+                "constructor": {
+                    "override-signatures": [
+                        "new(width: number, height: number): OffscreenCanvas"
+                    ],
+                    "name": "OffscreenCanvas"
+                },
+                "properties": {
+                    "property": {
+                        "width": {
+                            "override-type": "number",
+                            "name": "width"
+                        },
+                        "height": {
+                            "override-type": "number",
+                            "name": "height"
+                        }
+                    }
+                },
+                "methods": {
+                    "method": {
+                        "getContext": {
+                            "override-signatures": [
+                                "getContext(contextId: OffscreenRenderingContextId, options: any = null): OffscreenRenderingContext"
+                            ],
+                            "name": "getContext"
+                        },
+                        "transferToImageBitmap": {
+                            "override-signatures": [
+                                "transferToImageBitmap(): ImageBitmap"
+                            ],
+                            "name": "transferToImageBitmap"
+                        },
+                        "convertToBlob": {
+                            "override-signatures": [
+                                "convertToBlob(options?: ImageEncodeOptions): Promise<Blob>"
+                            ],
+                            "name": "convertToBlob"
+                        }
+                    }
+                }
+            },
             "RTCError": {
                 "specs": "webrtc",
                 "constructor": {
@@ -2326,6 +2483,23 @@
     },
     "dictionaries": {
         "dictionary": {
+            "ImageEncodeOptions": {
+                "name": "ImageEncodeOptions",
+                "members": {
+                    "member": {
+                        "type": {
+                            "name": "type",
+                            "override-type": "string",
+                            "default": "\"image/png\""
+                        },
+                        "quality": {
+                            "name": "quality",
+                            "override-type": "number",
+                            "default": 1.0
+                        }
+                    }
+                }
+            },
             "MessageEventInit": {
                 "name": "MessageEventInit",
                 "members": {
@@ -2624,6 +2798,26 @@
                         "type": "ServiceWorker"
                     }
                 ]
+            },
+            {
+                "new-type": "TimerHandler",
+                "override-type": "string | Function"
+            },
+            {
+                "new-type": "ImageBitmapSource",
+                "override-type": "CanvasImageSource | Blob | ImageData"
+            },
+            {
+                "new-type": "CanvasImageSource",
+                "override-type": "HTMLOrSVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas"
+            },
+            {
+                "new-type": "HTMLOrSVGImageElement",
+                "override-type": "HTMLImageElement | SVGImageElement"
+            },
+            {
+                "new-type": "OffscreenRenderingContext",
+                "override-type": "OffscreenCanvasRenderingContext2D | WebGLRenderingContext"
             }
         ]
     }
